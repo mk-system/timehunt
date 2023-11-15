@@ -1,0 +1,7 @@
+{
+  access_token: 'ya29.a0AfB_byAKmZ1XaTNXhzQ3QJt4srrfMNof6muuvUU7Si0543IV5KcPrbJHGBvC6I0g38ZzEDCEOQe8KXEnHXHYgzVG1bBKSTcm-N2nuljiqmdpji0kMqfoaXxmU2RJ_aUDrKbd3arIF5NlQRZvEVheStATnj-9gVPUhk7SaCgYKAV0SAQ4SFQHGX2Mif67LaUypbxKfXZ3gQxYelA0171',
+  refresh_token: '1//0e1Vi2dkhl5xNCgYIARAAGA4SNwF-L9IreSn4JPSnXmEw9BIFB28YpLvlkc6nkGwPaAEw0hoUfcMBbFjDCWKybaq4DAfKe0NAPEo',
+  scope: 'https://www.googleapis.com/auth/webmasters',
+  token_type: 'Bearer',
+  expiry_date: 1700042933444
+}
