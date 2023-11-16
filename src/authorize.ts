@@ -1,10 +1,8 @@
-import { google } from 'googleapis';
+import { OAuth2Client } from "google-auth-library";
 import readline from 'readline';
 import { getEnv } from "./lib/env";
-const { googleClientID, googleClientSecret } = getEnv();
 
-const CLIENT_ID = googleClientID;
-const CLIENT_SECRET = googleClientSecret;
+const { googleClientID, googleClientSecret } = getEnv();
 
 const rl = readline.createInterface({
   input: process.stdin,
@@ -12,11 +10,18 @@ const rl = readline.createInterface({
 });
 
 const REDIRECT_URL = 'urn:ietf:wg:oauth:2.0:oob';
-const SCOPE = ['https://www.googleapis.com/auth/webmasters'];
+const SCOPE = [
+  'https://www.googleapis.com/auth/calendar',
+  'https://www.googleapis.com/auth/calendar.readonly',
+  'https://www.googleapis.com/auth/calendar.events',
+  'https://www.googleapis.com/auth/calendar.events.readonly',
+  'https://www.googleapis.com/auth/calendar.settings.readonly',
+  'https://www.googleapis.com/auth/calendar.addons.execute'
+];
 
-const oauth2Client = new google.auth.OAuth2(
-  CLIENT_ID,
-  CLIENT_SECRET,
+const oauth2Client = new OAuth2Client(
+  googleClientID,
+  googleClientSecret,
   REDIRECT_URL
 );
 
@@ -35,6 +40,7 @@ const getAccessToken = (oauth2Client: any) => {
       console.log(tokens);
       console.log('上記の情報を大切に保管してください');
     });
+    rl.close();
   });
 };
 

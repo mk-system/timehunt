@@ -3,7 +3,13 @@ import { OAuth2Client } from "google-auth-library";
 import moment from 'moment';
 import { getEnv } from "./lib/env";
 
-const { googleClientID, googleClientSecret, googleAccessToken, googleRefreshToken, googleCalendarID } = getEnv();
+const {
+  googleClientID,
+  googleClientSecret,
+  googleAccessToken,
+  googleRefreshToken,
+  googleCalendarID
+} = getEnv();
 const oauth2Client = new OAuth2Client(googleClientID, googleClientSecret);
 oauth2Client.setCredentials({
   access_token: googleAccessToken,
@@ -13,18 +19,6 @@ const calendar = google.calendar({
   version: "v3",
   auth: oauth2Client
 });
-
-// 認証URLを生成
-const oauth2URL = oauth2Client.generateAuthUrl({
-  access_type: "offline",
-  scope: [
-    "https://www.googleapis.com/auth/calendar",
-    "https://www.google.com/calendar/feeds/",
-    "https://www.googleapis.com/auth/calendar.events",
-    "https://www.googleapis.com/auth/calendar.readonly",
-  ]
-})
-console.log('右記のURLをブラウザで開いてください: ', oauth2URL);
 
 const eventName = process.argv[2]; // コマンドライン引数からイベント名を取得
 
