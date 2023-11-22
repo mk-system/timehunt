@@ -16,12 +16,6 @@ export const getEnv = () =>
   if (!GOOGLE_CLIENT_SECRET) {
     throw Error('Please set the environment variable GOOGLE_CLIENT_SECRET.');
   }
-  if (!GOOGLE_ACCESS_TOKEN) {
-    throw Error('Please set the environment variable GOOGLE_ACCESS_TOKEN.');
-  }
-  if (!GOOGLE_REFRESH_TOKEN) {
-    throw Error('Please set the environment variable GOOGLE_REFRESH_TOKEN.');
-  }
   if (!GOOGLE_CALENDAR_ID) {
     throw Error('Please set the environment variable GOOGLE_CALENDAR_ID.');
   }
