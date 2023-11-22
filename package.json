@@ -7,6 +7,7 @@
     "dev": "nodemon --watch 'src/**/*.ts' --exec 'ts-node' src/index.ts",
     "build": "tsc"
   },
+  "packageManager": "pnpm@8.6.12",
   "author": "",
   "license": "ISC",
   "dependencies": {
