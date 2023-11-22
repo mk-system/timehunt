@@ -6,7 +6,6 @@
 ```.env
 GOOGLE_CLIENT_ID="(Google Cloud Consoleから取得してください)"
 GOOGLE_CLIENT_SECRET="(Google Cloud Consoleから取得してください)"
-GOOGLE_API_TOKEN="(Google Cloud Consoleから取得してください)"
 GOOGLE_ACCESS_TOKEN="(authorize.jsを実行して取得してください)"
 GOOGLE_REFRESH_TOKEN="(authorize.jsを実行して取得してください)"
 GOOGLE_CALENDAR_ID="(ご自身のGoogle CalendarのカレンダーIDを貼り付けてください)"
