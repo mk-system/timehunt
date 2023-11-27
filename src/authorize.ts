@@ -11,12 +11,7 @@ const rl = readline.createInterface({
 
 const REDIRECT_URL = 'urn:ietf:wg:oauth:2.0:oob';
 const SCOPE = [
-  'https://www.googleapis.com/auth/calendar',
   'https://www.googleapis.com/auth/calendar.readonly',
-  'https://www.googleapis.com/auth/calendar.events',
-  'https://www.googleapis.com/auth/calendar.events.readonly',
-  'https://www.googleapis.com/auth/calendar.settings.readonly',
-  'https://www.googleapis.com/auth/calendar.addons.execute'
 ];
 
 const oauth2Client = new OAuth2Client(
