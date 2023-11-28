@@ -52,6 +52,9 @@ const listEvents = async () => {
   });
 
   const eventName = process.argv[2]; // コマンドライン引数からイベント名を取得
+  const now = new Date();
+  now.setHours(0, 0, 0, 0);
+  const timeMin = now.toISOString();
 
   try {
     const response = await calendar.events.list({
@@ -59,6 +62,7 @@ const listEvents = async () => {
       q: eventName, // イベント名で検索
       singleEvents: true,
       orderBy: 'startTime',
+      timeMin: timeMin,
     });
     const events = response.data.items;
     if (events) {
