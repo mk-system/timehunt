@@ -35,15 +35,15 @@ async function listEvents() {
     if (events) {
       console.log('Upcoming events:');
       const events = response.data.items as calendar_v3.Schema$Event[];
-      if(events.length > 10){
-        console.log("スケジュール数が10件を超えています。The number of schedules exceeds 10.")
-      } 
       events.map((event: calendar_v3.Schema$Event) => {
         const start = event.start?.dateTime as string || event.start?.date as string;
         const end = event.end?.dateTime as string || event.end?.date as string;
         const timeStr = getTimeStr(start, end);
         console.log(`${convertToJapaneseDateFormat(parseISO(start), 'yyyy年M月d日(E)')} : ${timeStr}`);
       });
+      if(events.length > 10){
+        console.log("スケジュール数が10件を超えています。")
+      }
     } else {
       console.log('No upcoming events found.');
     }
