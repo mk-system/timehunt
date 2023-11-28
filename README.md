@@ -2,6 +2,7 @@
 
 - This application retrieves and displays appointments from Google Calendar.
 - Node.js is required for operation.
+- This software is released under the MIT License, see LICENSE.txt.
 
 
 ## How to use this app
