@@ -22,7 +22,6 @@ const oauth2Client = new OAuth2Client(
   REDIRECT_URL
 );
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const getAccessToken = (oauth2Client: OAuth2Client) => {
   const rl = readline.createInterface({
     input: process.stdin,
