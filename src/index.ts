@@ -1,64 +1,138 @@
-import { google, calendar_v3 } from "googleapis";
-import { OAuth2Client } from "google-auth-library";
-import moment from 'moment';
-import { getEnv } from "./lib/env";
+import { OAuth2Client } from 'google-auth-library';
+import readline from 'readline';
+import { google, calendar_v3 } from 'googleapis';
+import { parseISO, isSameHour, format } from 'date-fns';
+import { ja } from 'date-fns/locale';
+import { getEnv } from './lib/env';
 
 const {
   googleClientID,
   googleClientSecret,
   googleAccessToken,
   googleRefreshToken,
-  googleCalendarID
+  googleCalendarID,
 } = getEnv();
-const oauth2Client = new OAuth2Client(googleClientID, googleClientSecret);
-oauth2Client.setCredentials({
-  access_token: googleAccessToken,
-  refresh_token: googleRefreshToken,
-});
-const calendar = google.calendar({
-  version: "v3",
-  auth: oauth2Client
-});
 
-const eventName = process.argv[2]; // コマンドライン引数からイベント名を取得
+const REDIRECT_URL = 'urn:ietf:wg:oauth:2.0:oob';
+const SCOPE = ['https://www.googleapis.com/auth/calendar.readonly'];
 
-async function listEvents() {
+const oauth2Client = new OAuth2Client(
+  googleClientID,
+  googleClientSecret,
+  REDIRECT_URL
+);
+
+const getAccessToken = (oauth2Client: OAuth2Client) => {
+  const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout,
+  });
+
+  const url = oauth2Client.generateAuthUrl({
+    access_type: 'offline',
+    scope: SCOPE,
+  });
+
+  console.log('Please open the URL on the right with your browser: ', url);
+  rl.question('Please paste the code shown: ', (code: string) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    oauth2Client.getToken(code, (err: any, tokens: any) => {
+      console.log('Token has been issued.');
+      console.log(tokens);
+      console.log('Please keep the above information in a safe place.');
+    });
+    rl.close();
+  });
+}
+
+const listEvents = async () => {
+  const calendar = google.calendar({
+    version: 'v3',
+    auth: oauth2Client,
+  });
+
+  const eventName = process.argv[2]; // Get event name from command line argument
+  const now = new Date();
+  now.setHours(0, 0, 0, 0);
+  const timeMin = now.toISOString();
+
   try {
     const response = await calendar.events.list({
       calendarId: googleCalendarID,
-      q: eventName, // イベント名で検索
+      q: eventName,
+      singleEvents: true,
+      orderBy: 'startTime',
+      timeMin: timeMin,
     });
     const events = response.data.items;
     if (events) {
       console.log('Upcoming events:');
+      const events = response.data.items as calendar_v3.Schema$Event[];
       events.map((event: calendar_v3.Schema$Event) => {
-        const start = event.start?.dateTime || event.start?.date; // 開始時間
-        const end = event.end?.dateTime || event.end?.date; // 終了時間
+        const start =
+          (event.start?.dateTime as string) || (event.start?.date as string);
+        const end =
+          (event.end?.dateTime as string) || (event.end?.date as string);
         const timeStr = getTimeStr(start, end);
-        console.log(`${moment(start).format('MM月 DD日 (dddd)')}⋅${timeStr}`);
+        console.log(
+          `${convertToJapaneseDateFormat(
+            parseISO(start),
+            'yyyy年M月d日(E)'
+          )} : ${timeStr}`
+        );
       });
+      if (events.length > 10) {
+        console.log('The number of events exceeds 10.');
+      }
     } else {
       console.log('No upcoming events found.');
     }
   } catch (error) {
     console.log(error);
   }
-}
+};
 
-function getTimeStr(start: string | null | undefined, end: string | null | undefined): string {
+const isFullDay = (start: Date, end: Date) => {
+  return isSameHour(start, 9) && isSameHour(end, 19);
+};
+
+const convertToJapaneseDateFormat = (
+  date: Date,
+  formatStr: string,
+  locale: Locale = ja
+) => {
+  return format(date, formatStr, { locale });
+};
+
+const formatTime = (date: Date) => {
+  return convertToJapaneseDateFormat(date, 'HH:mm');
+};
+
+const getTimeStr = (start: string, end: string) => {
   if (start === end) {
     return '終日';
   } else {
-    const startMoment = moment(start);
-    const endMoment = moment(end);
-    if (startMoment.format('HH:mm') === '09:00' && endMoment.format('HH:mm') === '19:00') {
+    const convertedStartTime = parseISO(start);
+    const convertedEndTime = parseISO(end);
+
+    if (isFullDay(convertedStartTime, convertedEndTime)) {
       return '終日';
-    } else if (endMoment.format('HH:mm') === '19:00') {
-      return startMoment.format('HH:mm') + '～';
     } else {
-      return startMoment.format('HH:mm') + '～' + endMoment.format('HH:mm');
+      const startTimeStr = formatTime(convertedStartTime);
+      const endTimeStr = isSameHour(convertedEndTime, 19)
+        ? ''
+        : `～${formatTime(convertedEndTime)}`;
+      return `${startTimeStr}${endTimeStr}`;
     }
   }
-}
+};
 
-listEvents();
+if (googleAccessToken && googleRefreshToken) {
+  oauth2Client.setCredentials({
+    access_token: googleAccessToken,
+    refresh_token: googleRefreshToken,
+  });
+  listEvents();
+} else {
+  getAccessToken(oauth2Client);
+}
