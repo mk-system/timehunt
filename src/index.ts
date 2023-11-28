@@ -1,5 +1,6 @@
-import { google, calendar_v3 } from "googleapis";
 import { OAuth2Client } from "google-auth-library";
+import readline from 'readline';
+import { google, calendar_v3 } from "googleapis";
 import { parseISO, isSameHour, format } from "date-fns"
 import { ja } from "date-fns/locale";
 import { getEnv } from "./lib/env";
@@ -11,19 +12,60 @@ const {
   googleRefreshToken,
   googleCalendarID
 } = getEnv();
-const oauth2Client = new OAuth2Client(googleClientID, googleClientSecret);
-oauth2Client.setCredentials({
-  access_token: googleAccessToken,
-  refresh_token: googleRefreshToken,
-});
-const calendar = google.calendar({
-  version: "v3",
-  auth: oauth2Client
-});
 
-const eventName = process.argv[2]; // コマンドライン引数からイベント名を取得
+const REDIRECT_URL = 'urn:ietf:wg:oauth:2.0:oob';
+const SCOPE = [
+  'https://www.googleapis.com/auth/calendar.readonly',
+];
+
+const oauth2Client = new OAuth2Client(
+  googleClientID,
+  googleClientSecret,
+  REDIRECT_URL
+);
+
+if (googleAccessToken && googleRefreshToken) {
+  oauth2Client.setCredentials({
+    access_token: googleAccessToken,
+    refresh_token: googleRefreshToken,
+  });
+  listEvents();
+} else {
+  getAccessToken(oauth2Client);
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function getAccessToken(oauth2Client: any) {
+  const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout,
+  });
+
+  const url = oauth2Client.generateAuthUrl({
+    access_type: 'offline',
+    scope: SCOPE,
+  });
+
+  console.log('右記のURLをブラウザで開いてください: ', url);
+  rl.question('表示されたコードを貼り付けてください: ', (code: string) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    oauth2Client.getToken(code, (err: any, tokens: any) => {
+      console.log('トークンが発行されました');
+      console.log(tokens);
+      console.log('上記の情報を大切に保管してください');
+    });
+    rl.close();
+  });
+}
 
 async function listEvents() {
+  const calendar = google.calendar({
+    version: "v3",
+    auth: oauth2Client
+  });
+
+  const eventName = process.argv[2]; // コマンドライン引数からイベント名を取得
+
   try {
     const response = await calendar.events.list({
       calendarId: googleCalendarID,
@@ -84,5 +126,3 @@ export const getTimeStr = (start: string, end: string) => {
     }
   }
 };
-
-listEvents();
