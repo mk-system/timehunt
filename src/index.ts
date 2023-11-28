@@ -33,13 +33,13 @@ const getAccessToken = (oauth2Client: OAuth2Client) => {
     scope: SCOPE,
   });
 
-  console.log('右記のURLをブラウザで開いてください: ', url);
-  rl.question('表示されたコードを貼り付けてください: ', (code: string) => {
+  console.log('Please open the URL on the right with your browser: ', url);
+  rl.question('Please paste the code shown: ', (code: string) => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     oauth2Client.getToken(code, (err: any, tokens: any) => {
-      console.log('トークンが発行されました');
+      console.log('Token has been issued.');
       console.log(tokens);
-      console.log('上記の情報を大切に保管してください');
+      console.log('Please keep the above information in a safe place.');
     });
     rl.close();
   });
@@ -51,7 +51,7 @@ const listEvents = async () => {
     auth: oauth2Client,
   });
 
-  const eventName = process.argv[2]; // コマンドライン引数からイベント名を取得
+  const eventName = process.argv[2]; // Get event name from command line argument
   const now = new Date();
   now.setHours(0, 0, 0, 0);
   const timeMin = now.toISOString();
@@ -59,7 +59,7 @@ const listEvents = async () => {
   try {
     const response = await calendar.events.list({
       calendarId: googleCalendarID,
-      q: eventName, // イベント名で検索
+      q: eventName,
       singleEvents: true,
       orderBy: 'startTime',
       timeMin: timeMin,
@@ -82,7 +82,7 @@ const listEvents = async () => {
         );
       });
       if (events.length > 10) {
-        console.log('スケジュール数が10件を超えています。');
+        console.log('The number of events exceeds 10.');
       }
     } else {
       console.log('No upcoming events found.');
