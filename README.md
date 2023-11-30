@@ -12,15 +12,15 @@
 ```.env
 GOOGLE_CLIENT_ID="(Get it from Google Cloud Console)"
 GOOGLE_CLIENT_SECRET="(Get it from Google Cloud Console)"
-GOOGLE_ACCESS_TOKEN="(Obtained at the first execution of this application)"
-GOOGLE_REFRESH_TOKEN="(Obtained at the first execution of this application)"
 GOOGLE_CALENDAR_ID="(Please paste your own Google Calendar calendar ID)"
 ```
 
 ### Execution command
 
 ```bash
-schedule "meeting"
+npm i -g pnpm
+pnpm i
+pnpm run schedule "meeting"
 ```
 
 ### Execution result

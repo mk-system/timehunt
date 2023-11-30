@@ -8,16 +8,12 @@ import fs from 'fs';
 import { homedir } from 'os';
 import { join } from 'path';
 
-const {
-  googleClientID,
-  googleClientSecret,
-  googleAccessToken,
-  googleRefreshToken,
-  googleCalendarID,
-} = getEnv();
+const { googleClientID, googleClientSecret, googleCalendarID } = getEnv();
 
 const REDIRECT_URL = 'urn:ietf:wg:oauth:2.0:oob';
 const SCOPE = ['https://www.googleapis.com/auth/calendar.readonly'];
+const saveDirPath = join(homedir(), '.conf', 'schedule-checker', 'cache');
+const filePath = join(saveDirPath, 'token.json');
 
 const oauth2Client = new OAuth2Client(
   googleClientID,
@@ -40,8 +36,6 @@ const getAccessToken = (oauth2Client: OAuth2Client) => {
   rl.question('Please paste the code shown: ', (code: string) => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     oauth2Client.getToken(code, (err: any, tokens: any) => {
-      const saveDirPath = join(homedir(), '.conf', 'schedule-checker', 'cache');
-      const filePath = join(saveDirPath, 'token.json');
       fs.mkdirSync(saveDirPath, { recursive: true });
       fs.writeFileSync(filePath, JSON.stringify(tokens));
       console.log('Token has been issued: ', filePath);
@@ -93,7 +87,7 @@ const listEvents = async () => {
       console.log('No upcoming events found.');
     }
   } catch (error) {
-    console.log(error);
+    getAccessToken(oauth2Client);
   }
 };
 
@@ -132,12 +126,14 @@ const getTimeStr = (start: string, end: string) => {
   }
 };
 
-if (googleAccessToken && googleRefreshToken) {
+if (!fs.existsSync(filePath)) {
+  getAccessToken(oauth2Client);
+} else {
+  const buff = fs.readFileSync(filePath, 'utf8');
+  const jsonObject = JSON.parse(buff);
   oauth2Client.setCredentials({
-    access_token: googleAccessToken,
-    refresh_token: googleRefreshToken,
+    access_token: jsonObject.access_token,
+    refresh_token: jsonObject.refresh_token,
   });
   listEvents();
-} else {
-  getAccessToken(oauth2Client);
 }

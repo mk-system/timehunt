@@ -1,14 +1,8 @@
-import "dotenv/config"
+import 'dotenv/config';
 
-export const getEnv = () =>
-{
-  const {
-    GOOGLE_CLIENT_ID,
-    GOOGLE_CLIENT_SECRET,
-    GOOGLE_ACCESS_TOKEN,
-    GOOGLE_REFRESH_TOKEN,
-    GOOGLE_CALENDAR_ID,
-  } = process.env;
+export const getEnv = () => {
+  const { GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GOOGLE_CALENDAR_ID } =
+    process.env;
 
   if (!GOOGLE_CLIENT_ID) {
     throw Error('Please set the environment variable GOOGLE_CLIENT_ID.');
@@ -23,8 +17,6 @@ export const getEnv = () =>
   return {
     googleClientID: GOOGLE_CLIENT_ID,
     googleClientSecret: GOOGLE_CLIENT_SECRET,
-    googleAccessToken: GOOGLE_ACCESS_TOKEN,
-    googleRefreshToken: GOOGLE_REFRESH_TOKEN,
     googleCalendarID: GOOGLE_CALENDAR_ID,
   };
 };
