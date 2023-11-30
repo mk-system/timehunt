@@ -41,12 +41,10 @@ const getAccessToken = (oauth2Client: OAuth2Client) => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     oauth2Client.getToken(code, (err: any, tokens: any) => {
       const saveDirPath = join(homedir(), '.conf', 'schedule-checker', 'cache');
-      console.log('Token has been issued.');
+      const filePath = join(saveDirPath, 'token.json');
       fs.mkdirSync(saveDirPath, { recursive: true });
-      fs.writeFileSync(
-        `${join(saveDirPath, 'token.json')}`,
-        JSON.stringify(tokens)
-      );
+      fs.writeFileSync(filePath, JSON.stringify(tokens));
+      console.log('Token has been issued: ', filePath);
     });
     rl.close();
   });
