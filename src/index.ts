@@ -4,6 +4,9 @@ import { google, calendar_v3 } from 'googleapis';
 import { parseISO, isSameHour, format } from 'date-fns';
 import { ja } from 'date-fns/locale';
 import { getEnv } from './lib/env';
+import fs from 'fs';
+import { homedir } from 'os';
+import { join } from 'path';
 
 const {
   googleClientID,
@@ -33,17 +36,21 @@ const getAccessToken = (oauth2Client: OAuth2Client) => {
     scope: SCOPE,
   });
 
-  console.log('Please open the URL on the right with your browser: ', url);
+  console.log('Please open the URL on the right with your browser:\n', url);
   rl.question('Please paste the code shown: ', (code: string) => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     oauth2Client.getToken(code, (err: any, tokens: any) => {
+      const saveDirPath = join(homedir(), '.conf', 'schedule-checker', 'cache');
       console.log('Token has been issued.');
-      console.log(tokens);
-      console.log('Please keep the above information in a safe place.');
+      fs.mkdirSync(saveDirPath, { recursive: true });
+      fs.writeFileSync(
+        `${join(saveDirPath, 'token.json')}`,
+        JSON.stringify(tokens)
+      );
     });
     rl.close();
   });
-}
+};
 
 const listEvents = async () => {
   const calendar = google.calendar({
