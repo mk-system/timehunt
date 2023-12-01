@@ -143,19 +143,12 @@ const getTimeStr = (start: string, end: string) => {
   }
 };
 
-const isJson = (data: string) => {
-  try {
-    JSON.parse(data);
-  } catch (error) {
-    return false;
-  }
-  return true;
-};
-
 const getCredentialsFromJSON = (JSONFilePath: string) => {
   const buff = fs.readFileSync(JSONFilePath, 'utf8');
-  if (isJson(buff)) {
+  try {
     return JSON.parse(buff) as Credentials;
+  } catch (error) {
+    return undefined;
   }
 };
 
