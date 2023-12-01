@@ -12,8 +12,8 @@ const { googleClientID, googleClientSecret, googleCalendarID } = getEnv();
 
 const REDIRECT_URL = 'urn:ietf:wg:oauth:2.0:oob';
 const SCOPE = ['https://www.googleapis.com/auth/calendar.readonly'];
-const saveDirPath = join(homedir(), '.conf', 'schedule-checker', 'cache');
-const filePath = join(saveDirPath, 'token.json');
+const JSON_DIR_PATH = join(homedir(), '.conf', 'schedule-checker', 'cache');
+const JSON_FILE_PATH = join(JSON_DIR_PATH, 'token.json');
 
 const oauth2Client = new OAuth2Client(
   googleClientID,
@@ -36,9 +36,9 @@ const getAccessToken = (oauth2Client: OAuth2Client) => {
   rl.question('Please paste the code shown: ', (code: string) => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     oauth2Client.getToken(code, (err: any, tokens: any) => {
-      fs.mkdirSync(saveDirPath, { recursive: true });
-      fs.writeFileSync(filePath, JSON.stringify(tokens));
-      console.log('Token has been issued: ', filePath);
+      fs.mkdirSync(JSON_DIR_PATH, { recursive: true });
+      fs.writeFileSync(JSON_FILE_PATH, JSON.stringify(tokens));
+      console.log('Token has been issued: ', JSON_FILE_PATH);
     });
     rl.close();
   });
@@ -126,14 +126,27 @@ const getTimeStr = (start: string, end: string) => {
   }
 };
 
-if (!fs.existsSync(filePath)) {
+const isJson = (data: string) => {
+  try {
+    JSON.parse(data);
+  } catch (error) {
+    return false;
+  }
+  return true;
+};
+
+if (!fs.existsSync(JSON_FILE_PATH)) {
   getAccessToken(oauth2Client);
 } else {
-  const buff = fs.readFileSync(filePath, 'utf8');
-  const jsonObject = JSON.parse(buff);
-  oauth2Client.setCredentials({
-    access_token: jsonObject.access_token,
-    refresh_token: jsonObject.refresh_token,
-  });
-  listEvents();
+  const buff = fs.readFileSync(JSON_FILE_PATH, 'utf8');
+  if (isJson(buff)) {
+    const info = JSON.parse(buff);
+    oauth2Client.setCredentials({
+      access_token: info.access_token,
+      refresh_token: info.refresh_token,
+    });
+    listEvents();
+  } else {
+    getAccessToken(oauth2Client);
+  }
 }
