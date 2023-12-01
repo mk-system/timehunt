@@ -1,4 +1,4 @@
-# schedule-checker
+# google-calendar-event-searcher
 
 - Googleカレンダーから予定を取得して表示するアプリです。
 - 動作にはNode.jsが必要です。
@@ -20,7 +20,9 @@ GOOGLE_CALENDAR_ID="(ご自身のGoogleカレンダーのカレンダーIDを貼
 ### 実行コマンド
 
 ```bash
-schedule "meeting"
+npm i -g pnpm
+pnpm i
+pnpm run search "会議"
 ```
 
 ### 実行結果

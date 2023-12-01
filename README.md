@@ -1,4 +1,4 @@
-# schedule-checker
+# google-calendar-event-searcher
 
 - This application retrieves and displays appointments from Google Calendar.
 - Node.js is required for operation.
@@ -20,7 +20,7 @@ GOOGLE_CALENDAR_ID="(Please paste your own Google Calendar calendar ID)"
 ```bash
 npm i -g pnpm
 pnpm i
-pnpm run schedule "meeting"
+pnpm run search "meeting"
 ```
 
 ### Execution result
