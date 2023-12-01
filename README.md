@@ -1,4 +1,4 @@
-# calendar-event-searcher
+# timehunt
 
 - This application retrieves and displays appointments from Google Calendar.
 - Node.js is required for operation.

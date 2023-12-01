@@ -1,4 +1,4 @@
-# calendar-event-searcher
+# timehunt
 
 - Googleカレンダーから予定を取得して表示するアプリです。
 - 動作にはNode.jsが必要です。
