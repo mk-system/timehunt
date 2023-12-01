@@ -1,4 +1,4 @@
-# google-calendar-event-searcher
+# calendar-event-searcher
 
 - This application retrieves and displays appointments from Google Calendar.
 - Node.js is required for operation.

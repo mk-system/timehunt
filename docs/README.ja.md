@@ -1,4 +1,4 @@
-# google-calendar-event-searcher
+# calendar-event-searcher
 
 - Googleカレンダーから予定を取得して表示するアプリです。
 - 動作にはNode.jsが必要です。

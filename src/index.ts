@@ -15,7 +15,7 @@ const SCOPE = ['https://www.googleapis.com/auth/calendar.readonly'];
 const JSON_DIR_PATH = join(
   homedir(),
   '.conf',
-  'google-calendar-event-searcher',
+  'calendar-event-searcher',
   'cache'
 );
 const JSON_FILE_PATH = join(JSON_DIR_PATH, 'token.json');
