@@ -22,7 +22,7 @@ GOOGLE_CALENDAR_ID="(ご自身のGoogleカレンダーのカレンダーIDを貼
 ```bash
 npm i -g pnpm
 pnpm i
-pnpm run search "会議"
+pnpm run hunt "会議"
 ```
 
 ### 実行結果

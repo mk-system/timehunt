@@ -20,7 +20,7 @@ GOOGLE_CALENDAR_ID="(Please paste your own Google Calendar calendar ID)"
 ```bash
 npm i -g pnpm
 pnpm i
-pnpm run search "meeting"
+pnpm run hunt "meeting"
 ```
 
 ### Execution result
