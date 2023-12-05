@@ -55,10 +55,7 @@ const listEvents = async () => {
     ? getCredentialsFromJSON(JSON_FILE_PATH)
     : await getCredentials(oauth2Client);
   if (credentials) {
-    oauth2Client.setCredentials({
-      access_token: credentials.access_token,
-      refresh_token: credentials.refresh_token,
-    });
+    oauth2Client.setCredentials(credentials);
   }
 
   const calendar = google.calendar({
