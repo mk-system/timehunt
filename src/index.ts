@@ -15,7 +15,7 @@ const SCOPE = ['https://www.googleapis.com/auth/calendar.readonly'];
 const JSON_DIR_PATH = join(homedir(), '.conf', 'timehunt', 'cache');
 const JSON_FILE_PATH = join(JSON_DIR_PATH, 'token.json');
 
-const getAccessToken = async (oauth2Client: OAuth2Client) => {
+const getCredentials = async (oauth2Client: OAuth2Client) => {
   return new Promise<Credentials | undefined>((resolve) => {
     const rl = readline.createInterface({
       input: process.stdin,
@@ -50,6 +50,16 @@ const listEvents = async () => {
     googleClientSecret,
     REDIRECT_URL
   );
+
+  const credentials = fs.existsSync(JSON_FILE_PATH)
+    ? getCredentialsFromJSON(JSON_FILE_PATH)
+    : await getCredentials(oauth2Client);
+  if (credentials) {
+    oauth2Client.setCredentials({
+      access_token: credentials.access_token,
+      refresh_token: credentials.refresh_token,
+    });
+  }
 
   const calendar = google.calendar({
     version: 'v3',
@@ -93,7 +103,7 @@ const listEvents = async () => {
       console.log('No upcoming events found.');
     }
   } catch (error) {
-    getAccessToken(oauth2Client);
+    console.log(error);
   }
 };
 
@@ -141,18 +151,11 @@ const isJson = (data: string) => {
   return true;
 };
 
-if (!fs.existsSync(JSON_FILE_PATH)) {
-  getAccessToken(oauth2Client);
-} else {
-  const buff = fs.readFileSync(JSON_FILE_PATH, 'utf8');
+const getCredentialsFromJSON = (JSONFilePath: string) => {
+  const buff = fs.readFileSync(JSONFilePath, 'utf8');
   if (isJson(buff)) {
-    const info = JSON.parse(buff);
-    oauth2Client.setCredentials({
-      access_token: info.access_token,
-      refresh_token: info.refresh_token,
-    });
-    listEvents();
-  } else {
-    getAccessToken(oauth2Client);
+    return JSON.parse(buff) as Credentials;
   }
-}
+};
+
+listEvents();
