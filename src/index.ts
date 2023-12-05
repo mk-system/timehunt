@@ -3,13 +3,15 @@ import readline from 'readline';
 import { google, calendar_v3 } from 'googleapis';
 import { parseISO, isSameHour, format } from 'date-fns';
 import { ja } from 'date-fns/locale';
-import { getEnv } from './lib/env';
 import fs from 'fs';
 import { homedir } from 'os';
 import { join } from 'path';
-import { REDIRECT_URL } from './utility/googleApiUtility';
-
-const { googleClientID, googleClientSecret, googleCalendarID } = getEnv();
+import {
+  REDIRECT_URL,
+  googleClientID,
+  googleClientSecret,
+  googleCalendarID,
+} from './utility/googleApiUtility';
 
 const SCOPE = ['https://www.googleapis.com/auth/calendar.readonly'];
 const JSON_DIR_PATH = join(homedir(), '.conf', 'timehunt', 'cache');
