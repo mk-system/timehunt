@@ -7,10 +7,10 @@ import { getEnv } from './lib/env';
 import fs from 'fs';
 import { homedir } from 'os';
 import { join } from 'path';
+import { REDIRECT_URL } from './utility/googleApiUtility';
 
 const { googleClientID, googleClientSecret, googleCalendarID } = getEnv();
 
-const REDIRECT_URL = 'urn:ietf:wg:oauth:2.0:oob';
 const SCOPE = ['https://www.googleapis.com/auth/calendar.readonly'];
 const JSON_DIR_PATH = join(homedir(), '.conf', 'timehunt', 'cache');
 const JSON_FILE_PATH = join(JSON_DIR_PATH, 'token.json');
