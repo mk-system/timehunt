@@ -15,28 +15,32 @@ const SCOPE = ['https://www.googleapis.com/auth/calendar.readonly'];
 const JSON_DIR_PATH = join(homedir(), '.conf', 'timehunt', 'cache');
 const JSON_FILE_PATH = join(JSON_DIR_PATH, 'token.json');
 
-const getAccessToken = (oauth2Client: OAuth2Client) => {
-  const rl = readline.createInterface({
-    input: process.stdin,
-    output: process.stdout,
-  });
+const getAccessToken = async (oauth2Client: OAuth2Client) => {
+  return new Promise<Credentials | undefined>((resolve) => {
+    const rl = readline.createInterface({
+      input: process.stdin,
+      output: process.stdout,
+    });
 
-  const url = oauth2Client.generateAuthUrl({
-    access_type: 'offline',
-    scope: SCOPE,
-  });
+    const url = oauth2Client.generateAuthUrl({
+      access_type: 'offline',
+      scope: SCOPE,
+    });
 
-  console.log('Please open the URL on the right with your browser:\n', url);
-  rl.question('Please paste the code shown: ', (code: string) => {
-    oauth2Client.getToken(
-      code,
-      (err, tokens: Credentials | null | undefined) => {
-        fs.mkdirSync(JSON_DIR_PATH, { recursive: true });
-        fs.writeFileSync(JSON_FILE_PATH, JSON.stringify(tokens));
-        console.log('Token has been issued: ', JSON_FILE_PATH);
-      }
-    );
-    rl.close();
+    console.log('Please open the URL on the right with your browser:\n', url);
+    rl.question('Please paste the code shown: ', (code: string) => {
+      oauth2Client.getToken(code, (_err, tokens) => {
+        if (tokens) {
+          fs.mkdirSync(JSON_DIR_PATH, { recursive: true });
+          fs.writeFileSync(JSON_FILE_PATH, JSON.stringify(tokens));
+          console.log('Token has been issued: ', JSON_FILE_PATH);
+          resolve(tokens);
+        } else {
+          resolve(undefined);
+        }
+      });
+      rl.close();
+    });
   });
 };
 
