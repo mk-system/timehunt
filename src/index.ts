@@ -1,4 +1,4 @@
-import { OAuth2Client } from 'google-auth-library';
+import { Credentials, OAuth2Client } from 'google-auth-library';
 import readline from 'readline';
 import { google, calendar_v3 } from 'googleapis';
 import { parseISO, isSameHour, format } from 'date-fns';
@@ -34,12 +34,14 @@ const getAccessToken = (oauth2Client: OAuth2Client) => {
 
   console.log('Please open the URL on the right with your browser:\n', url);
   rl.question('Please paste the code shown: ', (code: string) => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    oauth2Client.getToken(code, (err: any, tokens: any) => {
-      fs.mkdirSync(JSON_DIR_PATH, { recursive: true });
-      fs.writeFileSync(JSON_FILE_PATH, JSON.stringify(tokens));
-      console.log('Token has been issued: ', JSON_FILE_PATH);
-    });
+    oauth2Client.getToken(
+      code,
+      (err, tokens: Credentials | null | undefined) => {
+        fs.mkdirSync(JSON_DIR_PATH, { recursive: true });
+        fs.writeFileSync(JSON_FILE_PATH, JSON.stringify(tokens));
+        console.log('Token has been issued: ', JSON_FILE_PATH);
+      }
+    );
     rl.close();
   });
 };
