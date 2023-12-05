@@ -15,12 +15,6 @@ const SCOPE = ['https://www.googleapis.com/auth/calendar.readonly'];
 const JSON_DIR_PATH = join(homedir(), '.conf', 'timehunt', 'cache');
 const JSON_FILE_PATH = join(JSON_DIR_PATH, 'token.json');
 
-const oauth2Client = new OAuth2Client(
-  googleClientID,
-  googleClientSecret,
-  REDIRECT_URL
-);
-
 const getAccessToken = (oauth2Client: OAuth2Client) => {
   const rl = readline.createInterface({
     input: process.stdin,
@@ -47,6 +41,12 @@ const getAccessToken = (oauth2Client: OAuth2Client) => {
 };
 
 const listEvents = async () => {
+  const oauth2Client = new OAuth2Client(
+    googleClientID,
+    googleClientSecret,
+    REDIRECT_URL
+  );
+
   const calendar = google.calendar({
     version: 'v3',
     auth: oauth2Client,
