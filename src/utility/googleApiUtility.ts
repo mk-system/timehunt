@@ -9,10 +9,19 @@ import fs from 'fs';
 export const REDIRECT_URL = 'urn:ietf:wg:oauth:2.0:oob';
 export const { googleClientID, googleClientSecret, googleCalendarID } =
   getEnv();
-export const SCOPE = ['https://www.googleapis.com/auth/calendar.readonly'];
+const SCOPE = ['https://www.googleapis.com/auth/calendar'];
 
 export const JSON_DIR_PATH = join(homedir(), '.conf', 'timehunt', 'cache');
 export const JSON_FILE_PATH = join(JSON_DIR_PATH, 'token.json');
+
+export const getCredentialsFromJSON = (JSONFilePath: string) => {
+  const buff = fs.readFileSync(JSONFilePath, 'utf8');
+  try {
+    return JSON.parse(buff) as Credentials;
+  } catch (error) {
+    return undefined;
+  }
+};
 
 export const getCredentials = async (oauth2Client: OAuth2Client) => {
   return new Promise<Credentials | undefined>((resolve) => {
