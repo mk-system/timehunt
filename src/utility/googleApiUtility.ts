@@ -1,3 +1,4 @@
+import { calendar_v3, google } from 'googleapis';
 import { Credentials, OAuth2Client } from 'google-auth-library';
 import { getEnv } from '../lib/env';
 import readline from 'readline';
@@ -40,4 +41,35 @@ export const getCredentials = async (oauth2Client: OAuth2Client) => {
       rl.close();
     });
   });
+};
+
+export const getEvents = async (
+  oauth2Client: OAuth2Client,
+  eventName: string
+) => {
+  const calendar = google.calendar({
+    version: 'v3',
+    auth: oauth2Client,
+  });
+
+  const now = new Date();
+  now.setHours(0, 0, 0, 0);
+  const timeMin = now.toISOString();
+
+  try {
+    const response = await calendar.events.list({
+      calendarId: googleCalendarID,
+      q: eventName,
+      singleEvents: true,
+      orderBy: 'startTime',
+      timeMin: timeMin,
+    });
+    const events = response.data.items;
+    if (events) {
+      return response.data.items as calendar_v3.Schema$Event[];
+    }
+  } catch (error) {
+    console.log(error);
+  }
+  return undefined;
 };

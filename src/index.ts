@@ -1,5 +1,5 @@
 import { Credentials, OAuth2Client } from 'google-auth-library';
-import { google, calendar_v3 } from 'googleapis';
+import { calendar_v3 } from 'googleapis';
 import { parseISO, isSameHour, format } from 'date-fns';
 import { ja } from 'date-fns/locale';
 import fs from 'fs';
@@ -8,8 +8,8 @@ import {
   JSON_FILE_PATH,
   googleClientID,
   googleClientSecret,
-  googleCalendarID,
   getCredentials,
+  getEvents,
 } from './utility/googleApiUtility';
 
 const listEvents = async () => {
@@ -26,28 +26,10 @@ const listEvents = async () => {
     oauth2Client.setCredentials(credentials);
   }
 
-  const calendar = google.calendar({
-    version: 'v3',
-    auth: oauth2Client,
-  });
-
-  const eventName = process.argv[2]; // Get event name from command line argument
-  const now = new Date();
-  now.setHours(0, 0, 0, 0);
-  const timeMin = now.toISOString();
-
   try {
-    const response = await calendar.events.list({
-      calendarId: googleCalendarID,
-      q: eventName,
-      singleEvents: true,
-      orderBy: 'startTime',
-      timeMin: timeMin,
-    });
-    const events = response.data.items;
+    console.log('Upcoming events:');
+    const events = await getEvents(oauth2Client, process.argv[2]); // Get event name from command line argument
     if (events) {
-      console.log('Upcoming events:');
-      const events = response.data.items as calendar_v3.Schema$Event[];
       events.map((event: calendar_v3.Schema$Event) => {
         const start =
           (event.start?.dateTime as string) || (event.start?.date as string);
