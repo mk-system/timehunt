@@ -11,9 +11,9 @@ import {
   googleClientID,
   googleClientSecret,
   googleCalendarID,
+  SCOPE,
 } from './utility/googleApiUtility';
 
-const SCOPE = ['https://www.googleapis.com/auth/calendar.readonly'];
 const JSON_DIR_PATH = join(homedir(), '.conf', 'timehunt', 'cache');
 const JSON_FILE_PATH = join(JSON_DIR_PATH, 'token.json');
 
