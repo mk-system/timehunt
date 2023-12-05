@@ -41,7 +41,7 @@ const fixCommandHandler = async () => {
   }
 
   const dateTimeRange = process.argv[2];
-  const afterEventName = process.argv[3];
+  //const afterEventName = process.argv[3];
   const beforeEventName = process.argv[4];
 
   try {
@@ -51,17 +51,12 @@ const fixCommandHandler = async () => {
       await displayDateTimeRange(beforeEvents);
       if (isInRange(dateTimeRange, beforeEvents)) {
         console.log(`And add this?\n${dateTimeRange}\n(`);
-        const answer = await new Promise<string>((resolve) => {
-          const loop = async () => {
-            const response = await askQuestion('(Y/N)> ');
-            if (/^y(es)?|no?$/i.test(answer)) {
-              resolve(response);
-            } else {
-              loop();
-            }
-          };
-          loop();
-        });
+
+        let response: string = '';
+        while (/^y(es)?|no?$/i.test(response)) {
+          response = await askQuestion('(Y/N)> ');
+        }
+
         // TODO: 指定したイベントを削除、指定した時間帯にイベントを作成
       } else {
         console.log(`Could not find schedule in "${beforeEventName}" events.`);
