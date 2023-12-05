@@ -5,6 +5,7 @@
   "main": "index.ts",
   "scripts": {
     "hunt": "'ts-node' src/index.ts",
+    "fix": "'ts-node' src/fix.ts",
     "build": "tsc"
   },
   "packageManager": "pnpm@8.6.12",

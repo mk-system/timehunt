@@ -1,0 +1,3 @@
+const fixCommandHandler = async () => {};
+
+fixCommandHandler();
