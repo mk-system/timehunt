@@ -1,50 +1,16 @@
 import { Credentials, OAuth2Client } from 'google-auth-library';
-import readline from 'readline';
 import { google, calendar_v3 } from 'googleapis';
 import { parseISO, isSameHour, format } from 'date-fns';
 import { ja } from 'date-fns/locale';
 import fs from 'fs';
-import { homedir } from 'os';
-import { join } from 'path';
 import {
   REDIRECT_URL,
+  JSON_FILE_PATH,
   googleClientID,
   googleClientSecret,
   googleCalendarID,
-  SCOPE,
+  getCredentials,
 } from './utility/googleApiUtility';
-
-const JSON_DIR_PATH = join(homedir(), '.conf', 'timehunt', 'cache');
-const JSON_FILE_PATH = join(JSON_DIR_PATH, 'token.json');
-
-const getCredentials = async (oauth2Client: OAuth2Client) => {
-  return new Promise<Credentials | undefined>((resolve) => {
-    const rl = readline.createInterface({
-      input: process.stdin,
-      output: process.stdout,
-    });
-
-    const url = oauth2Client.generateAuthUrl({
-      access_type: 'offline',
-      scope: SCOPE,
-    });
-
-    console.log('Please open the URL on the right with your browser:\n', url);
-    rl.question('Please paste the code shown: ', (code: string) => {
-      oauth2Client.getToken(code, (_err, tokens) => {
-        if (tokens) {
-          fs.mkdirSync(JSON_DIR_PATH, { recursive: true });
-          fs.writeFileSync(JSON_FILE_PATH, JSON.stringify(tokens));
-          console.log('Token has been issued: ', JSON_FILE_PATH);
-          resolve(tokens);
-        } else {
-          resolve(undefined);
-        }
-      });
-      rl.close();
-    });
-  });
-};
 
 const listEvents = async () => {
   const oauth2Client = new OAuth2Client(
