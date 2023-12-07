@@ -78,19 +78,26 @@ const listEvents = async () => {
     if (events) {
       console.log('Upcoming events:');
       const events = response.data.items as calendar_v3.Schema$Event[];
-      events.map((event: calendar_v3.Schema$Event) => {
-        const start =
-          (event.start?.dateTime as string) || (event.start?.date as string);
-        const end =
-          (event.end?.dateTime as string) || (event.end?.date as string);
-        const timeStr = getTimeStr(start, end);
+      const groupedEvents = groupEventsByDate(events);
+      for (const [date, eventsOnDate] of Object.entries(groupedEvents)) {
+        const eventStrs = eventsOnDate.map(
+          (event: calendar_v3.Schema$Event) => {
+            const start =
+              (event.start?.dateTime as string) ||
+              (event.start?.date as string);
+            const end =
+              (event.end?.dateTime as string) || (event.end?.date as string);
+            const timeStr = getTimeStr(start, end);
+            return timeStr;
+          }
+        );
         console.log(
           `${convertToJapaneseDateFormat(
-            parseISO(start),
+            parseISO(date),
             'yyyy年M月d日(E)'
-          )} : ${timeStr}`
+          )} : ${eventStrs.join(' or ')}`
         );
-      });
+      }
       if (events.length > 10) {
         console.log('The number of events exceeds 10.');
       }
@@ -145,6 +152,23 @@ const getCredentialsFromJSON = (JSONFilePath: string) => {
   } catch (error) {
     return undefined;
   }
+};
+
+const groupEventsByDate = (
+  events: calendar_v3.Schema$Event[]
+): { [date: string]: calendar_v3.Schema$Event[] } => {
+  const groupedEvents: { [date: string]: calendar_v3.Schema$Event[] } = {};
+  for (const event of events) {
+    const start =
+      (event.start?.dateTime as string) || (event.start?.date as string);
+    const date = start.split('T')[0]; // Extract date from datetime
+    if (groupedEvents[date]) {
+      groupedEvents[date].push(event);
+    } else {
+      groupedEvents[date] = [event];
+    }
+  }
+  return groupedEvents;
 };
 
 listEvents();
