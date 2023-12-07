@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 import { Credentials, OAuth2Client } from 'google-auth-library';
 import readline from 'readline';
 import { google, calendar_v3 } from 'googleapis';
