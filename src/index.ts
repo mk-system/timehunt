@@ -1,61 +1,71 @@
-import { OAuth2Client } from 'google-auth-library';
+import { Credentials, OAuth2Client } from 'google-auth-library';
 import readline from 'readline';
 import { google, calendar_v3 } from 'googleapis';
 import { parseISO, isSameHour, format } from 'date-fns';
 import { ja } from 'date-fns/locale';
 import { getEnv } from './lib/env';
+import fs from 'fs';
+import { homedir } from 'os';
+import { join } from 'path';
 
-const {
-  googleClientID,
-  googleClientSecret,
-  googleAccessToken,
-  googleRefreshToken,
-  googleCalendarID,
-} = getEnv();
+const { googleClientID, googleClientSecret, googleCalendarID } = getEnv();
 
 const REDIRECT_URL = 'urn:ietf:wg:oauth:2.0:oob';
 const SCOPE = ['https://www.googleapis.com/auth/calendar.readonly'];
+const JSON_DIR_PATH = join(homedir(), '.conf', 'timehunt', 'cache');
+const JSON_FILE_PATH = join(JSON_DIR_PATH, 'token.json');
 
-const oauth2Client = new OAuth2Client(
-  googleClientID,
-  googleClientSecret,
-  REDIRECT_URL
-);
-
-const getAccessToken = (oauth2Client: OAuth2Client) => {
-  const rl = readline.createInterface({
-    input: process.stdin,
-    output: process.stdout,
-  });
-
-  const url = oauth2Client.generateAuthUrl({
-    access_type: 'offline',
-    scope: SCOPE,
-  });
-
-  console.log('Please open the URL on the right with your browser: ', url);
-  rl.question('Please paste the code shown: ', (code: string) => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    oauth2Client.getToken(code, (err: any, tokens: any) => {
-      console.log('Token has been issued.');
-      console.log(tokens);
-      console.log('Please keep the above information in a safe place.');
+const getCredentials = async (oauth2Client: OAuth2Client) => {
+  return new Promise<Credentials | undefined>((resolve) => {
+    const rl = readline.createInterface({
+      input: process.stdin,
+      output: process.stdout,
     });
-    rl.close();
+
+    const url = oauth2Client.generateAuthUrl({
+      access_type: 'offline',
+      scope: SCOPE,
+    });
+
+    console.log('Please open the URL on the right with your browser:\n', url);
+    rl.question('Please paste the code shown: ', (code: string) => {
+      oauth2Client.getToken(code, (_err, tokens) => {
+        if (tokens) {
+          fs.mkdirSync(JSON_DIR_PATH, { recursive: true });
+          fs.writeFileSync(JSON_FILE_PATH, JSON.stringify(tokens));
+          console.log('Token has been issued: ', JSON_FILE_PATH);
+          resolve(tokens);
+        } else {
+          resolve(undefined);
+        }
+      });
+      rl.close();
+    });
   });
-}
+};
 
 const listEvents = async () => {
+  const oauth2Client = new OAuth2Client(
+    googleClientID,
+    googleClientSecret,
+    REDIRECT_URL
+  );
+
+  const credentials = fs.existsSync(JSON_FILE_PATH)
+    ? getCredentialsFromJSON(JSON_FILE_PATH)
+    : await getCredentials(oauth2Client);
+  if (credentials) {
+    oauth2Client.setCredentials(credentials);
+  }
+
   const calendar = google.calendar({
     version: 'v3',
     auth: oauth2Client,
   });
-
   const eventName = process.argv[2]; // Get event name from command line argument
   const now = new Date();
   now.setHours(0, 0, 0, 0);
   const timeMin = now.toISOString();
-
   try {
     const response = await calendar.events.list({
       calendarId: googleCalendarID,
@@ -88,7 +98,8 @@ const listEvents = async () => {
       console.log('No upcoming events found.');
     }
   } catch (error) {
-    console.log(error);
+    await getCredentials(oauth2Client);
+    await listEvents();
   }
 };
 
@@ -127,12 +138,13 @@ const getTimeStr = (start: string, end: string) => {
   }
 };
 
-if (googleAccessToken && googleRefreshToken) {
-  oauth2Client.setCredentials({
-    access_token: googleAccessToken,
-    refresh_token: googleRefreshToken,
-  });
-  listEvents();
-} else {
-  getAccessToken(oauth2Client);
-}
+const getCredentialsFromJSON = (JSONFilePath: string) => {
+  const buff = fs.readFileSync(JSONFilePath, 'utf8');
+  try {
+    return JSON.parse(buff) as Credentials;
+  } catch (error) {
+    return undefined;
+  }
+};
+
+listEvents();
