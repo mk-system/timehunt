@@ -1,9 +1,10 @@
 {
   "name": "timehunt",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "",
   "main": "./dist/index.js",
   "scripts": {
+    "start": "node ./dist/index.js",
     "hunt": "'ts-node' src/index.ts",
     "build": "tsc"
   },
