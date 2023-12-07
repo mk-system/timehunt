@@ -1,7 +1,7 @@
 import { Credentials, OAuth2Client } from 'google-auth-library';
 import readline from 'readline';
 import { google, calendar_v3 } from 'googleapis';
-import { parseISO, isSameHour, format } from 'date-fns';
+import { parseISO, isSameHour, format, startOfDay } from 'date-fns';
 import { ja } from 'date-fns/locale';
 import { getEnv } from './lib/env';
 import fs from 'fs';
@@ -79,8 +79,8 @@ const listEvents = async () => {
       console.log('Upcoming events:');
       const events = response.data.items as calendar_v3.Schema$Event[];
       const groupedEvents = groupEventsByDate(events);
-      for (const [date, eventsOnDate] of Object.entries(groupedEvents)) {
-        const eventStrs = eventsOnDate.map(
+      for (const [date, eventsOnDate] of groupedEvents) {
+        const eventStrs = (eventsOnDate as calendar_v3.Schema$Event[]).map(
           (event: calendar_v3.Schema$Event) => {
             const start =
               (event.start?.dateTime as string) ||
@@ -93,7 +93,7 @@ const listEvents = async () => {
         );
         console.log(
           `${convertToJapaneseDateFormat(
-            parseISO(date),
+            date as Date,
             'yyyy年M月d日(E)'
           )} : ${eventStrs.join(' or ')}`
         );
@@ -154,21 +154,25 @@ const getCredentialsFromJSON = (JSONFilePath: string) => {
   }
 };
 
-const groupEventsByDate = (
-  events: calendar_v3.Schema$Event[]
-): { [date: string]: calendar_v3.Schema$Event[] } => {
+const groupEventsByDate = (events: calendar_v3.Schema$Event[]) => {
   const groupedEvents: { [date: string]: calendar_v3.Schema$Event[] } = {};
   for (const event of events) {
     const start =
       (event.start?.dateTime as string) || (event.start?.date as string);
-    const date = start.split('T')[0]; // Extract date from datetime
+    const date = startOfDay(new Date(start)).toISOString();
     if (groupedEvents[date]) {
       groupedEvents[date].push(event);
     } else {
       groupedEvents[date] = [event];
     }
   }
-  return groupedEvents;
+
+  return Object.entries(groupedEvents)
+    .map(([date, events]) => [new Date(date), events])
+    .sort(
+      ([date1], [date2]) =>
+        (date1 as Date).getTime() - (date2 as Date).getTime()
+    );
 };
 
 listEvents();
