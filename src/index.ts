@@ -15,6 +15,9 @@ const SCOPE = ['https://www.googleapis.com/auth/calendar.readonly'];
 const JSON_DIR_PATH = join(homedir(), '.conf', 'timehunt', 'cache');
 const JSON_FILE_PATH = join(JSON_DIR_PATH, 'token.json');
 
+type Element = [Date, calendar_v3.Schema$Event[]];
+type GroupEvents = Element[];
+
 const getCredentials = async (oauth2Client: OAuth2Client) => {
   return new Promise<Credentials | undefined>((resolve) => {
     const rl = readline.createInterface({
@@ -93,7 +96,7 @@ const listEvents = async () => {
         );
         console.log(
           `${convertToJapaneseDateFormat(
-            date as Date,
+            date,
             'yyyy年M月d日(E)'
           )} : ${eventStrs.join(' or ')}`
         );
@@ -154,25 +157,24 @@ const getCredentialsFromJSON = (JSONFilePath: string) => {
   }
 };
 
-const groupEventsByDate = (events: calendar_v3.Schema$Event[]) => {
-  const groupedEvents: { [date: string]: calendar_v3.Schema$Event[] } = {};
+const groupEventsByDate = (events: calendar_v3.Schema$Event[]): GroupEvents => {
+  const groupedEvents: Map<string, calendar_v3.Schema$Event[]> = new Map();
+
   for (const event of events) {
     const start =
       (event.start?.dateTime as string) || (event.start?.date as string);
     const date = startOfDay(new Date(start)).toISOString();
-    if (groupedEvents[date]) {
-      groupedEvents[date].push(event);
+    const existingEvents = groupedEvents.get(date);
+    if (existingEvents) {
+      existingEvents.push(event);
     } else {
-      groupedEvents[date] = [event];
+      groupedEvents.set(date, [event]);
     }
   }
 
-  return Object.entries(groupedEvents)
-    .map(([date, events]) => [new Date(date), events])
-    .sort(
-      ([date1], [date2]) =>
-        (date1 as Date).getTime() - (date2 as Date).getTime()
-    );
+  return Array.from(groupedEvents.entries())
+    .map(([date, events]) => [new Date(date), events] as Element)
+    .sort((date1, date2) => date1[0].getTime() - date2[0].getTime());
 };
 
 listEvents();
