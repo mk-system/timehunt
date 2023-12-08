@@ -158,22 +158,22 @@ const getCredentialsFromJSON = (JSONFilePath: string) => {
 };
 
 const groupEventsByDate = (events: calendar_v3.Schema$Event[]): GroupEvents => {
-  const groupedEvents: Map<string, calendar_v3.Schema$Event[]> = new Map();
+  const groupedEvents: Map<number, calendar_v3.Schema$Event[]> = new Map();
 
   for (const event of events) {
-    const start =
-      (event.start?.dateTime as string) || (event.start?.date as string);
-    const date = startOfDay(new Date(start)).toISOString();
-    const existingEvents = groupedEvents.get(date);
+    const start = event.start?.dateTime || event.start?.date;
+    const date = startOfDay(parseISO(start as string));
+    const dateMs = date.getTime(); // Use milliseconds of the date as a key.
+    const existingEvents = groupedEvents.get(dateMs);
     if (existingEvents) {
       existingEvents.push(event);
     } else {
-      groupedEvents.set(date, [event]);
+      groupedEvents.set(dateMs, [event]);
     }
   }
 
   return Array.from(groupedEvents.entries())
-    .map(([date, events]) => [new Date(date), events] as Element)
+    .map(([dateMs, events]) => [new Date(dateMs), events] as Element)
     .sort((date1, date2) => date1[0].getTime() - date2[0].getTime());
 };
 
