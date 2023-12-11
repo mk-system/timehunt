@@ -85,13 +85,9 @@ const listEvents = async () => {
       for (const [date, eventsOnDate] of groupedEvents) {
         const eventStrs = eventsOnDate.map(
           (event: calendar_v3.Schema$Event) => {
-            const start =
-              (event.start?.dateTime as string) ||
-              (event.start?.date as string);
-            const end =
-              (event.end?.dateTime as string) || (event.end?.date as string);
-            const timeStr = getTimeStr(start, end);
-            return timeStr;
+            const start = event.start?.dateTime ?? event.start?.date ?? '';
+            const end = event.end?.dateTime ?? event.end?.date ?? '';
+            return getTimeStr(start, end);
           }
         );
         console.log(
