@@ -17,6 +17,9 @@ const SCOPE = ['https://www.googleapis.com/auth/calendar.readonly'];
 const JSON_DIR_PATH = join(homedir(), '.conf', 'timehunt', 'cache');
 const JSON_FILE_PATH = join(JSON_DIR_PATH, 'token.json');
 
+type Element = [string, calendar_v3.Schema$Event[]];
+type GroupEvents = Element[];
+
 const getCredentials = async (oauth2Client: OAuth2Client) => {
   return new Promise<Credentials | undefined>((resolve) => {
     const rl = readline.createInterface({
@@ -80,19 +83,22 @@ const listEvents = async () => {
     if (events) {
       console.log('Upcoming events:');
       const events = response.data.items as calendar_v3.Schema$Event[];
-      events.map((event: calendar_v3.Schema$Event) => {
-        const start =
-          (event.start?.dateTime as string) || (event.start?.date as string);
-        const end =
-          (event.end?.dateTime as string) || (event.end?.date as string);
-        const timeStr = getTimeStr(start, end);
+      const groupedEvents = groupEventsByDate(events);
+      for (const [date, eventsOnDate] of groupedEvents) {
+        const eventStrs = eventsOnDate.map(
+          (event: calendar_v3.Schema$Event) => {
+            const start = event.start?.dateTime ?? event.start?.date ?? '';
+            const end = event.end?.dateTime ?? event.end?.date ?? '';
+            return getTimeStr(start, end);
+          }
+        );
         console.log(
           `${convertToJapaneseDateFormat(
-            parseISO(start),
+            parseISO(date),
             'yyyy年M月d日(E)'
-          )} : ${timeStr}`
+          )} : ${eventStrs.join(' or ')}`
         );
-      });
+      }
       if (events.length > 10) {
         console.log('The number of events exceeds 10.');
       }
@@ -100,6 +106,7 @@ const listEvents = async () => {
       console.log('No upcoming events found.');
     }
   } catch (error) {
+    console.log(error);
     await getCredentials(oauth2Client);
     await listEvents();
   }
@@ -147,6 +154,27 @@ const getCredentialsFromJSON = (JSONFilePath: string) => {
   } catch (error) {
     return undefined;
   }
+};
+
+const groupEventsByDate = (events: calendar_v3.Schema$Event[]) => {
+  return events.reduce((acc, event) => {
+    const start = event.start?.dateTime || event.start?.date;
+    if (start) {
+      const key = format(parseISO(start), 'yyyy-MM-dd');
+      const previous = acc[acc.length - 1];
+      if (!previous) {
+        acc.push([key, [event]]);
+      } else {
+        const [previousKey, previousEvents] = previous;
+        if (previousKey !== key) {
+          acc.push([key, [event]]);
+        } else {
+          previousEvents.push(event);
+        }
+      }
+    }
+    return acc;
+  }, [] as GroupEvents);
 };
 
 listEvents();
