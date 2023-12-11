@@ -15,7 +15,7 @@ const SCOPE = ['https://www.googleapis.com/auth/calendar.readonly'];
 const JSON_DIR_PATH = join(homedir(), '.conf', 'timehunt', 'cache');
 const JSON_FILE_PATH = join(JSON_DIR_PATH, 'token.json');
 
-type Element = [Date, calendar_v3.Schema$Event[]];
+type Element = [string, calendar_v3.Schema$Event[]];
 type GroupEvents = Element[];
 
 const getCredentials = async (oauth2Client: OAuth2Client) => {
@@ -92,7 +92,7 @@ const listEvents = async () => {
         );
         console.log(
           `${convertToJapaneseDateFormat(
-            date,
+            parseISO(date),
             'yyyy年M月d日(E)'
           )} : ${eventStrs.join(' or ')}`
         );
@@ -159,13 +159,16 @@ const groupEventsByDate = (events: calendar_v3.Schema$Event[]) => {
     const start = event.start?.dateTime || event.start?.date;
     if (start) {
       const key = format(parseISO(start), 'yyyy-MM-dd');
-      if (
-        acc.length === 0 ||
-        format(acc[acc.length - 1][0], 'yyyy-MM-dd') !== key
-      ) {
-        acc.push([parseISO(key), [event]]);
+      const previous = acc[acc.length - 1];
+      if (!previous) {
+        acc.push([key, [event]]);
       } else {
-        acc[acc.length - 1][1].push(event);
+        const [previousKey, previousEvents] = previous;
+        if (previousKey !== key) {
+          acc.push([key, [event]]);
+        } else {
+          previousEvents.push(event);
+        }
       }
     }
     return acc;
