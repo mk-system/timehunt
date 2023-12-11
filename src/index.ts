@@ -1,7 +1,7 @@
 import { Credentials, OAuth2Client } from 'google-auth-library';
 import readline from 'readline';
 import { google, calendar_v3 } from 'googleapis';
-import { parseISO, isSameHour, format, startOfDay } from 'date-fns';
+import { parseISO, isSameHour, format } from 'date-fns';
 import { ja } from 'date-fns/locale';
 import { getEnv } from './lib/env';
 import fs from 'fs';
@@ -108,6 +108,7 @@ const listEvents = async () => {
       console.log('No upcoming events found.');
     }
   } catch (error) {
+    console.log(error);
     await getCredentials(oauth2Client);
     await listEvents();
   }
@@ -157,24 +158,22 @@ const getCredentialsFromJSON = (JSONFilePath: string) => {
   }
 };
 
-const groupEventsByDate = (events: calendar_v3.Schema$Event[]): GroupEvents => {
-  const groupedEvents: Map<number, calendar_v3.Schema$Event[]> = new Map();
-
-  for (const event of events) {
+const groupEventsByDate = (events: calendar_v3.Schema$Event[]) => {
+  return events.reduce((acc, event) => {
     const start = event.start?.dateTime || event.start?.date;
-    const date = startOfDay(parseISO(start as string));
-    const dateMs = date.getTime(); // Use milliseconds of the date as a key.
-    const existingEvents = groupedEvents.get(dateMs);
-    if (existingEvents) {
-      existingEvents.push(event);
-    } else {
-      groupedEvents.set(dateMs, [event]);
+    if (start) {
+      const key = format(parseISO(start), 'yyyy-MM-dd');
+      if (
+        acc.length === 0 ||
+        format(acc[acc.length - 1][0], 'yyyy-MM-dd') !== key
+      ) {
+        acc.push([parseISO(key), [event]]);
+      } else {
+        acc[acc.length - 1][1].push(event);
+      }
     }
-  }
-
-  return Array.from(groupedEvents.entries())
-    .map(([dateMs, events]) => [new Date(dateMs), events] as Element)
-    .sort((date1, date2) => date1[0].getTime() - date2[0].getTime());
+    return acc;
+  }, [] as GroupEvents);
 };
 
 listEvents();
