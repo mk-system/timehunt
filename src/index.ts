@@ -83,7 +83,7 @@ const listEvents = async () => {
       const events = response.data.items as calendar_v3.Schema$Event[];
       const groupedEvents = groupEventsByDate(events);
       for (const [date, eventsOnDate] of groupedEvents) {
-        const eventStrs = (eventsOnDate as calendar_v3.Schema$Event[]).map(
+        const eventStrs = eventsOnDate.map(
           (event: calendar_v3.Schema$Event) => {
             const start =
               (event.start?.dateTime as string) ||
