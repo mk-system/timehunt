@@ -52,7 +52,7 @@ export const getCredentials = async (oauth2Client: OAuth2Client) => {
   });
 };
 
-const getCalender = async (oauth2Client: OAuth2Client) => {
+const getCalendar = async (oauth2Client: OAuth2Client) => {
   return google.calendar({
     version: 'v3',
     auth: oauth2Client,
@@ -63,7 +63,7 @@ export const getEvents = async (
   oauth2Client: OAuth2Client,
   eventName: string
 ) => {
-  const calendar = await getCalender(oauth2Client);
+  const calendar = await getCalendar(oauth2Client);
 
   const now = new Date();
   now.setHours(0, 0, 0, 0);
@@ -85,4 +85,67 @@ export const getEvents = async (
     console.log(error);
   }
   return undefined;
+};
+
+const getEventIds = async (oauth2Client: OAuth2Client, eventName: string) => {
+  try {
+    const events = await getEvents(oauth2Client, eventName);
+    if (events) {
+      return events
+        .filter((event) => event.summary === eventName)
+        .map((event) => event.id || '');
+    }
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const deleteEvents = async (
+  oauth2Client: OAuth2Client,
+  eventName: string
+) => {
+  try {
+    const eventIds = await getEventIds(oauth2Client, eventName);
+    if (eventIds) {
+      const calender = await getCalendar(oauth2Client);
+      eventIds.map((eventId) =>
+        calender.events.delete({
+          auth: oauth2Client,
+          calendarId: googleCalendarID,
+          eventId: eventId,
+        })
+      );
+    }
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const createEvent = async (
+  oauth2Client: OAuth2Client,
+  eventName: string,
+  start: Date,
+  end: Date
+) => {
+  const event = {
+    summary: eventName,
+    start: {
+      dateTime: start.toISOString(),
+      timeZone: 'Asia/Tokyo',
+    },
+    end: {
+      dateTime: end.toISOString(),
+      timeZone: 'Asia/Tokyo',
+    },
+  };
+
+  try {
+    const calendar = await getCalendar(oauth2Client);
+    return await calendar.events.insert({
+      calendarId: googleCalendarID,
+      requestBody: event,
+    });
+  } catch (error) {
+    console.log(error);
+  }
 };

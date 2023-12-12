@@ -9,9 +9,12 @@ import {
   getCredentials,
   getCredentialsFromJSON,
   getEvents,
+  deleteEvents,
+  createEvent,
 } from './util/googleApiUtility';
 import {
   displayDateTimeRange,
+  dividedDateTimeRange,
   groupEventsByDate,
   isInRange,
 } from './util/dateTimeUtility';
@@ -55,7 +58,7 @@ const fixCommandHandler = async () => {
   }
 
   const dateTimeRange = process.argv[2];
-  //const afterEventName = process.argv[3];
+  const afterEventName = process.argv[3];
   const beforeEventName = process.argv[4];
 
   try {
@@ -64,13 +67,20 @@ const fixCommandHandler = async () => {
       console.log('Are you sure to remove schedules?');
       const groupedEvents = groupEventsByDate(beforeEvents);
       await displayDateTimeRange(groupedEvents);
-      if (isInRange(dateTimeRange, beforeEvents)) {
-        const resolve = await getResponse(
+      const [startDateTime, endDateTime] = dividedDateTimeRange(dateTimeRange);
+      if (isInRange(startDateTime, endDateTime, beforeEvents)) {
+        const response = await getResponse(
           `And add this?\n${dateTimeRange}\n(y/n) > `
         );
-        const lowerCaseResolve = resolve.toLowerCase();
+        const lowerCaseResolve = response.toLowerCase();
         if (lowerCaseResolve === 'y' || lowerCaseResolve === 'yes') {
-          // TODO: 指定したイベントを削除、指定した時間帯にイベントを作成
+          await deleteEvents(oauth2Client, beforeEventName);
+          await createEvent(
+            oauth2Client,
+            afterEventName,
+            startDateTime,
+            endDateTime
+          );
         }
       } else {
         console.log(`Could not find schedule in "${beforeEventName}" events.`);

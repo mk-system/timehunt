@@ -56,15 +56,19 @@ export const displayDateTimeRange = async (groupedEvents: GroupEvents) => {
   }
 };
 
-export const isInRange = (
-  dateTimeRange: string,
-  events: calendar_v3.Schema$Event[]
-) => {
+export const dividedDateTimeRange = (dateTimeRange: string) => {
   const [date, range] = dateTimeRange.split(' ');
   const [start, end] = range.split('-');
   const targetStartDateTime = parseISO(`${date}T${start}:00+09:00`);
   const targetEndDateTime = parseISO(`${date}T${end}:00+09:00`);
+  return [targetStartDateTime, targetEndDateTime];
+};
 
+export const isInRange = (
+  targetStartDateTime: Date,
+  targetEndDateTime: Date,
+  events: calendar_v3.Schema$Event[]
+) => {
   return events.some((event) => {
     const start = event.start!.dateTime || event.start!.date;
     const end = event.end!.dateTime || event.end!.date;
