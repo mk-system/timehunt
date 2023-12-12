@@ -108,7 +108,7 @@ const deleteEvent = async (oauth2Client: OAuth2Client, eventId: string) => {
       calendarId: googleCalendarID,
       eventId: eventId,
     });
-    if (!response || response.status !== 200) {
+    if (response.status !== 200) {
       console.log('Failed to delete event.');
       return false;
     }
@@ -124,6 +124,7 @@ export const deleteEvents = async (
 ) => {
   try {
     const eventIds = await getEventIds(oauth2Client, eventName);
+    console.log(eventIds);
     if (eventIds) {
       eventIds.map((eventId) => deleteEvent(oauth2Client, eventId));
       return true;
