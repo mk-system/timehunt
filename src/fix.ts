@@ -34,7 +34,6 @@ const getResponse = async (question: string): Promise<string> => {
         lowerCaseResponse === 'n' ||
         lowerCaseResponse === 'no'
       ) {
-        rl.close();
         resolve(lowerCaseResponse);
       } else {
         resolve(getResponse(question));
@@ -91,6 +90,8 @@ const fixCommandHandler = async () => {
   } catch (error) {
     await getCredentials(oauth2Client);
     await fixCommandHandler();
+  } finally {
+    rl.close();
   }
 };
 
