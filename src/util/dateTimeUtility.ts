@@ -78,13 +78,13 @@ export const isInRange = (
       const endDate = parseISO(end);
 
       return (
-        isWithinInterval(targetStartDateTime, {
-          start: startDate,
-          end: endDate,
+        isWithinInterval(startDate, {
+          start: targetStartDateTime,
+          end: targetEndDateTime,
         }) &&
-        isWithinInterval(targetEndDateTime, {
-          start: startDate,
-          end: endDate,
+        isWithinInterval(endDate, {
+          start: targetStartDateTime,
+          end: targetEndDateTime,
         })
       );
     }
