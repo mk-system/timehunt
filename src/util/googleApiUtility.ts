@@ -100,6 +100,24 @@ const getEventIds = async (oauth2Client: OAuth2Client, eventName: string) => {
   }
 };
 
+const deleteEvent = async (oauth2Client: OAuth2Client, eventId: string) => {
+  try {
+    const calender = await getCalendar(oauth2Client);
+    const response = await calender.events.delete({
+      auth: oauth2Client,
+      calendarId: googleCalendarID,
+      eventId: eventId,
+    });
+    if (!response || response.status !== 200) {
+      console.log('Failed to delete event.');
+      return false;
+    }
+  } catch (error) {
+    console.log(error);
+  }
+  return true;
+};
+
 export const deleteEvents = async (
   oauth2Client: OAuth2Client,
   eventName: string
@@ -107,18 +125,13 @@ export const deleteEvents = async (
   try {
     const eventIds = await getEventIds(oauth2Client, eventName);
     if (eventIds) {
-      const calender = await getCalendar(oauth2Client);
-      eventIds.map((eventId) =>
-        calender.events.delete({
-          auth: oauth2Client,
-          calendarId: googleCalendarID,
-          eventId: eventId,
-        })
-      );
+      eventIds.map((eventId) => deleteEvent(oauth2Client, eventId));
+      return true;
     }
   } catch (error) {
     console.log(error);
   }
+  return false;
 };
 
 export const createEvent = async (

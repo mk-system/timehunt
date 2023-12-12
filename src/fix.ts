@@ -74,13 +74,16 @@ const fixCommandHandler = async () => {
         );
         const lowerCaseResolve = response.toLowerCase();
         if (lowerCaseResolve === 'y' || lowerCaseResolve === 'yes') {
-          await deleteEvents(oauth2Client, beforeEventName);
-          await createEvent(
-            oauth2Client,
-            afterEventName,
-            startDateTime,
-            endDateTime
-          );
+          if (await deleteEvents(oauth2Client, beforeEventName)) {
+            await createEvent(
+              oauth2Client,
+              afterEventName,
+              startDateTime,
+              endDateTime
+            );
+          } else {
+            console.log('Failed to delete event.');
+          }
         }
       } else {
         console.log(`Could not find schedule in "${beforeEventName}" events.`);
