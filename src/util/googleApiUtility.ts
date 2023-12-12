@@ -121,12 +121,10 @@ export const deleteEvents = async (
     const eventIds = await getEventIds(oauth2Client, eventName);
     if (eventIds) {
       eventIds.map((eventId) => deleteEvent(oauth2Client, eventId));
-      return true;
     }
   } catch (error) {
     console.log(error);
   }
-  return false;
 };
 
 export const createEvent = async (
