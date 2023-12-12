@@ -43,8 +43,7 @@ export const getTimeStr = (start: string, end: string) => {
 export const displayDateTimeRange = async (groupedEvents: GroupEvents) => {
   for (const [date, eventsOnDate] of groupedEvents) {
     const eventStrs = eventsOnDate.map((event: calendar_v3.Schema$Event) => {
-      const start = event.start?.dateTime ?? event.start?.date ?? '';
-      const end = event.end?.dateTime ?? event.end?.date ?? '';
+      const { start, end } = getTimeStrFromEvent(event);
       return getTimeStr(start, end);
     });
     console.log(
@@ -64,12 +63,17 @@ export const dividedDateTimeRange = (dateTimeRange: string) => {
   return [targetStartDateTime, targetEndDateTime];
 };
 
+const getTimeStrFromEvent = (event: calendar_v3.Schema$Event) => {
+  const start = event.start?.dateTime ?? event.start?.date ?? '';
+  const end = event.end?.dateTime ?? event.end?.date ?? '';
+  return { start, end };
+};
+
 const getMaxMinDates = (events: calendar_v3.Schema$Event[]) => {
   try {
     return events.reduce(
       (acc, event) => {
-        const start = event.start!.dateTime || event.start!.date;
-        const end = event.end!.dateTime || event.end!.date;
+        const { start, end } = getTimeStrFromEvent(event);
         if (start && end) {
           const startDateTime = parseISO(start);
           const endDateTime = parseISO(end);
@@ -112,7 +116,7 @@ export const isInRange = (
 
 export const groupEventsByDate = (events: calendar_v3.Schema$Event[]) => {
   return events.reduce((acc, event) => {
-    const start = event.start?.dateTime || event.start?.date;
+    const { start } = getTimeStrFromEvent(event);
     if (start) {
       const key = format(parseISO(start), 'yyyy-MM-dd');
       const previous = acc[acc.length - 1];
