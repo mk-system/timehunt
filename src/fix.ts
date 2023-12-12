@@ -10,18 +10,32 @@ import {
   getCredentialsFromJSON,
   getEvents,
 } from './util/googleApiUtility';
-import { displayDateTimeRange, isInRange } from './util/dateTimeUtility';
+import {
+  displayDateTimeRange,
+  groupEventsByDate,
+  isInRange,
+} from './util/dateTimeUtility';
 
 const rl = readline.createInterface({
   input: process.stdin,
   output: process.stdout,
 });
 
-const askQuestion = async (stdInput: string): Promise<string> => {
+const getResponse = async (question: string): Promise<string> => {
   return new Promise((resolve) => {
-    rl.question(stdInput, (answer) => {
-      rl.close();
-      resolve(answer);
+    rl.question(question, (response) => {
+      const lowerCaseResponse = response.toLowerCase();
+      if (
+        lowerCaseResponse === 'y' ||
+        lowerCaseResponse === 'yes' ||
+        lowerCaseResponse === 'n' ||
+        lowerCaseResponse === 'no'
+      ) {
+        rl.close();
+        resolve(lowerCaseResponse);
+      } else {
+        resolve(getResponse(question));
+      }
     });
   });
 };
@@ -48,16 +62,16 @@ const fixCommandHandler = async () => {
     const beforeEvents = await getEvents(oauth2Client, beforeEventName);
     if (beforeEvents) {
       console.log('Are you sure to remove schedules?');
-      await displayDateTimeRange(beforeEvents);
+      const groupedEvents = groupEventsByDate(beforeEvents);
+      await displayDateTimeRange(groupedEvents);
       if (isInRange(dateTimeRange, beforeEvents)) {
-        console.log(`And add this?\n${dateTimeRange}\n(`);
-
-        let response: string = '';
-        while (/^y(es)?|no?$/i.test(response)) {
-          response = await askQuestion('(Y/N)> ');
+        const resolve = await getResponse(
+          `And add this?\n${dateTimeRange}\n(y/n) > `
+        );
+        const lowerCaseResolve = resolve.toLowerCase();
+        if (lowerCaseResolve === 'y' || lowerCaseResolve === 'yes') {
+          // TODO: 指定したイベントを削除、指定した時間帯にイベントを作成
         }
-
-        // TODO: 指定したイベントを削除、指定した時間帯にイベントを作成
       } else {
         console.log(`Could not find schedule in "${beforeEventName}" events.`);
       }

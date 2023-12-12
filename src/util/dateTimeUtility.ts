@@ -1,4 +1,4 @@
-import { format, isSameHour, parseISO } from 'date-fns';
+import { format, isSameHour, isWithinInterval, parseISO } from 'date-fns';
 import ja from 'date-fns/locale/ja';
 import { calendar_v3 } from 'googleapis';
 
@@ -40,45 +40,53 @@ export const getTimeStr = (start: string, end: string) => {
   }
 };
 
-export const displayDateTimeRange = async (
-  events: calendar_v3.Schema$Event[]
-) => {
-  events.map((beforeEvent: calendar_v3.Schema$Event) => {
-    const start =
-      (beforeEvent.start?.dateTime as string) ||
-      (beforeEvent.start?.date as string);
-    const end =
-      (beforeEvent.end?.dateTime as string) ||
-      (beforeEvent.end?.date as string);
-    const timeStr = getTimeStr(start, end);
+export const displayDateTimeRange = async (groupedEvents: GroupEvents) => {
+  for (const [date, eventsOnDate] of groupedEvents) {
+    const eventStrs = eventsOnDate.map((event: calendar_v3.Schema$Event) => {
+      const start = event.start?.dateTime ?? event.start?.date ?? '';
+      const end = event.end?.dateTime ?? event.end?.date ?? '';
+      return getTimeStr(start, end);
+    });
     console.log(
       `${convertToJapaneseDateFormat(
-        parseISO(start),
+        parseISO(date),
         'yyyy年M月d日(E)'
-      )} : ${timeStr}`
+      )} : ${eventStrs.join(' or ')}`
     );
-  });
+  }
 };
 
 export const isInRange = (
   dateTimeRange: string,
   events: calendar_v3.Schema$Event[]
 ) => {
-  events.map(() => {
-    const [startRange, endRange] = dateTimeRange
-      .split('-')
-      .map((d) => new Date(d.trim()));
+  const [date, range] = dateTimeRange.split(' ');
+  const [start, end] = range.split('-');
+  const targetStartDateTime = parseISO(`${date}T${start}:00+09:00`);
+  const targetEndDateTime = parseISO(`${date}T${end}:00+09:00`);
 
-    return events.some((event) => {
-      const start = new Date(event.start?.dateTime as string);
-      const end = new Date(event.end?.dateTime as string);
+  return events.some((event) => {
+    const start = event.start!.dateTime || event.start!.date;
+    const end = event.end!.dateTime || event.end!.date;
+
+    if (start && end) {
+      const startDate = parseISO(start);
+      const endDate = parseISO(end);
+
       return (
-        (start >= startRange && start <= endRange) ||
-        (end >= startRange && end <= endRange)
+        isWithinInterval(targetStartDateTime, {
+          start: startDate,
+          end: endDate,
+        }) &&
+        isWithinInterval(targetEndDateTime, {
+          start: startDate,
+          end: endDate,
+        })
       );
-    });
+    }
+
+    return false;
   });
-  return false;
 };
 
 export const groupEventsByDate = (events: calendar_v3.Schema$Event[]) => {

@@ -6,6 +6,7 @@
   "scripts": {
     "start": "node ./dist/index.js",
     "hunt": "'ts-node' src/index.ts",
+    "fix": "'ts-node' src/fix.ts",
     "build": "tsc"
   },
   "bin": {
