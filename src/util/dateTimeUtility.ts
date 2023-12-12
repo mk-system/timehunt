@@ -64,33 +64,50 @@ export const dividedDateTimeRange = (dateTimeRange: string) => {
   return [targetStartDateTime, targetEndDateTime];
 };
 
+const getMaxMinDates = (events: calendar_v3.Schema$Event[]) => {
+  try {
+    return events.reduce(
+      (acc, event) => {
+        const start = event.start!.dateTime || event.start!.date;
+        const end = event.end!.dateTime || event.end!.date;
+        if (start && end) {
+          const startDateTime = parseISO(start);
+          const endDateTime = parseISO(end);
+          return {
+            minDate: startDateTime < acc.minDate ? startDateTime : acc.minDate,
+            maxDate: endDateTime > acc.maxDate ? endDateTime : acc.maxDate,
+          };
+        }
+        return acc;
+      },
+      {
+        minDate: parseISO('9999-12-31T23:59:59'),
+        maxDate: parseISO('0000-01-01T00:00:00'),
+      }
+    );
+  } catch (error) {
+    console.log(error);
+  }
+};
+
 export const isInRange = (
   targetStartDateTime: Date,
   targetEndDateTime: Date,
   events: calendar_v3.Schema$Event[]
 ) => {
-  return events.some((event) => {
-    const start = event.start!.dateTime || event.start!.date;
-    const end = event.end!.dateTime || event.end!.date;
-
-    if (start && end) {
-      const startDate = parseISO(start);
-      const endDate = parseISO(end);
-
-      return (
-        isWithinInterval(startDate, {
-          start: targetStartDateTime,
-          end: targetEndDateTime,
-        }) &&
-        isWithinInterval(endDate, {
-          start: targetStartDateTime,
-          end: targetEndDateTime,
-        })
-      );
-    }
-
-    return false;
-  });
+  const dates = getMaxMinDates(events);
+  if (dates) {
+    return (
+      isWithinInterval(targetStartDateTime, {
+        start: dates.minDate,
+        end: dates.maxDate,
+      }) &&
+      isWithinInterval(targetEndDateTime, {
+        start: dates.minDate,
+        end: dates.maxDate,
+      })
+    );
+  }
 };
 
 export const groupEventsByDate = (events: calendar_v3.Schema$Event[]) => {
