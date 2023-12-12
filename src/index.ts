@@ -1,6 +1,4 @@
 import { OAuth2Client } from 'google-auth-library';
-import { calendar_v3 } from 'googleapis';
-import { parseISO } from 'date-fns';
 import fs from 'fs';
 import {
   REDIRECT_URL,
@@ -12,8 +10,7 @@ import {
   getEvents,
 } from './util/googleApiUtility';
 import {
-  convertToJapaneseDateFormat,
-  getTimeStr,
+  displayDateTimeRange,
   groupEventsByDate,
 } from './util/dateTimeUtility';
 
@@ -36,21 +33,7 @@ const listEvents = async () => {
     if (events) {
       console.log('Upcoming events:');
       const groupedEvents = groupEventsByDate(events);
-      for (const [date, eventsOnDate] of groupedEvents) {
-        const eventStrs = eventsOnDate.map(
-          (event: calendar_v3.Schema$Event) => {
-            const start = event.start?.dateTime ?? event.start?.date ?? '';
-            const end = event.end?.dateTime ?? event.end?.date ?? '';
-            return getTimeStr(start, end);
-          }
-        );
-        console.log(
-          `${convertToJapaneseDateFormat(
-            parseISO(date),
-            'yyyy年M月d日(E)'
-          )} : ${eventStrs.join(' or ')}`
-        );
-      }
+      await displayDateTimeRange(groupedEvents);
       if (events.length > 10) {
         console.log('The number of events exceeds 10.');
       }
