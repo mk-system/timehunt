@@ -9,7 +9,9 @@
     "build": "tsc"
   },
   "bin": {
-    "timehunt": "./dist/index.js"
+    "timehunt": "./dist/index.js",
+    "fix": "'ts-node' src/fix.ts",
+    "build": "tsc"
   },
   "packageManager": "pnpm@8.6.12",
   "author": "",
