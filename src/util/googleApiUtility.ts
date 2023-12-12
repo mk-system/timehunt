@@ -52,14 +52,18 @@ export const getCredentials = async (oauth2Client: OAuth2Client) => {
   });
 };
 
+const getCalender = async (oauth2Client: OAuth2Client) => {
+  return google.calendar({
+    version: 'v3',
+    auth: oauth2Client,
+  });
+};
+
 export const getEvents = async (
   oauth2Client: OAuth2Client,
   eventName: string
 ) => {
-  const calendar = google.calendar({
-    version: 'v3',
-    auth: oauth2Client,
-  });
+  const calendar = await getCalender(oauth2Client);
 
   const now = new Date();
   now.setHours(0, 0, 0, 0);
