@@ -106,7 +106,6 @@ const listEvents = async () => {
       console.log('No upcoming events found.');
     }
   } catch (error) {
-    console.log(error);
     await getCredentials(oauth2Client);
     await listEvents();
   }
