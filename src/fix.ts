@@ -64,11 +64,11 @@ const fixCommandHandler = async () => {
   try {
     const beforeEvents = await getEvents(oauth2Client, beforeEventName);
     if (beforeEvents) {
-      console.log('Are you sure to remove schedules?');
       const groupedEvents = groupEventsByDate(beforeEvents);
       await displayDateTimeRange(groupedEvents);
       const [startDateTime, endDateTime] = dividedDateTimeRange(dateTimeRange);
       if (isInRange(startDateTime, endDateTime, beforeEvents)) {
+        console.log('Are you sure to remove schedules?');
         const response = await getResponse(
           `And add this?\n${dateTimeRange}\n(y/n) > `
         );
