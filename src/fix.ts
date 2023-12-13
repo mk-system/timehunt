@@ -15,6 +15,7 @@ import {
   groupEventsByDate,
   isInRange,
 } from './util/dateTimeUtility';
+import { exit } from 'process';
 
 const rl = readline.createInterface({
   input: process.stdin,
@@ -47,6 +48,11 @@ const fixCommandHandler = async () => {
     : await getCredentials(oauth2Client);
   if (credentials) {
     oauth2Client.setCredentials(credentials);
+  }
+
+  if (process.argv.length !== 5) {
+    console.log('Arguments are wrong.');
+    exit();
   }
 
   const dateTimeRange = process.argv[2];
