@@ -19,19 +19,16 @@ const rl = readline.createInterface({
   output: process.stdout,
 });
 
-const getResponse = async (question: string): Promise<string> => {
+const yes = async (question: string): Promise<boolean> => {
   return new Promise((resolve) => {
     rl.question(question, (response) => {
       const lowerCaseResponse = response.toLowerCase();
-      if (
-        lowerCaseResponse === 'y' ||
-        lowerCaseResponse === 'yes' ||
-        lowerCaseResponse === 'n' ||
-        lowerCaseResponse === 'no'
-      ) {
-        resolve(lowerCaseResponse);
+      if (lowerCaseResponse === 'y' || lowerCaseResponse === 'yes') {
+        resolve(true);
+      } else if (lowerCaseResponse === 'n' || lowerCaseResponse === 'no') {
+        resolve(false);
       } else {
-        resolve(getResponse(question));
+        resolve(yes(question));
       }
     });
   });
@@ -57,11 +54,7 @@ const fixCommandHandler = async () => {
       const [startDateTime, endDateTime] = dividedDateTimeRange(dateTimeRange);
       if (isInRange(startDateTime, endDateTime, beforeEvents)) {
         console.log('Are you sure to remove schedules?');
-        const response = await getResponse(
-          `And add this?\n${dateTimeRange}\n(y/n) > `
-        );
-        const lowerCaseResolve = response.toLowerCase();
-        if (lowerCaseResolve === 'y' || lowerCaseResolve === 'yes') {
+        if (await yes(`And add this?\n${dateTimeRange}\n(y/n) > `)) {
           await deleteEvents(oauth2Client, beforeEventName);
           await createEvent(
             oauth2Client,
