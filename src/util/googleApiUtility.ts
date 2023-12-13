@@ -23,6 +23,10 @@ export const getCredentialsFromJSON = (JSONFilePath: string) => {
   }
 };
 
+export const getOAuth2Client = () => {
+  return new OAuth2Client(googleClientID, googleClientSecret, REDIRECT_URL);
+};
+
 export const getCredentials = async (oauth2Client: OAuth2Client) => {
   return new Promise<Credentials | undefined>((resolve) => {
     const rl = readline.createInterface({

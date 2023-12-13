@@ -1,13 +1,10 @@
-import { OAuth2Client } from 'google-auth-library';
 import fs from 'fs';
 import {
-  REDIRECT_URL,
   JSON_FILE_PATH,
-  googleClientID,
-  googleClientSecret,
   getCredentials,
   getCredentialsFromJSON,
   getEvents,
+  getOAuth2Client,
 } from './util/googleApiUtility';
 import {
   displayDateTimeRange,
@@ -15,11 +12,7 @@ import {
 } from './util/dateTimeUtility';
 
 const listEvents = async () => {
-  const oauth2Client = new OAuth2Client(
-    googleClientID,
-    googleClientSecret,
-    REDIRECT_URL
-  );
+  const oauth2Client = getOAuth2Client();
 
   const credentials = fs.existsSync(JSON_FILE_PATH)
     ? getCredentialsFromJSON(JSON_FILE_PATH)
