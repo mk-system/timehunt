@@ -50,17 +50,24 @@ const fixCommandHandler = async () => {
     const beforeEvents = await getEvents(oauth2Client, beforeEventName);
     if (beforeEvents) {
       const groupedEvents = groupEventsByDate(beforeEvents);
-      await displayDateTimeRange(groupedEvents);
-      const [startDateTime, endDateTime] = dividedDateTimeRange(dateTimeRange);
-      if (isInRange(startDateTime, endDateTime, beforeEvents)) {
-        console.log('Are you sure to remove schedules?');
-        if (await yes(`And add this?\n${dateTimeRange}\n(y/n) > `)) {
-          await deleteEvents(oauth2Client, beforeEventName);
-          await createEvent(
-            oauth2Client,
-            afterEventName,
-            startDateTime,
-            endDateTime
+      if (groupedEvents.length > 0) {
+        await displayDateTimeRange(groupedEvents);
+        const [startDateTime, endDateTime] =
+          dividedDateTimeRange(dateTimeRange);
+        if (isInRange(startDateTime, endDateTime, beforeEvents)) {
+          console.log('Are you sure to remove schedules?');
+          if (await yes(`And add this?\n${dateTimeRange}\n(y/n) > `)) {
+            await deleteEvents(oauth2Client, beforeEventName);
+            await createEvent(
+              oauth2Client,
+              afterEventName,
+              startDateTime,
+              endDateTime
+            );
+          }
+        } else {
+          console.log(
+            `Could not find schedule in "${beforeEventName}" events.`
           );
         }
       } else {
