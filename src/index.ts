@@ -1,10 +1,7 @@
-import fs from 'fs';
 import {
-  JSON_FILE_PATH,
   getCredentials,
-  getCredentialsFromJSON,
   getEvents,
-  getOAuth2Client,
+  initializeOAuth2Client,
 } from './util/googleApiUtility';
 import {
   displayDateTimeRange,
@@ -12,14 +9,7 @@ import {
 } from './util/dateTimeUtility';
 
 const listEvents = async () => {
-  const oauth2Client = getOAuth2Client();
-
-  const credentials = fs.existsSync(JSON_FILE_PATH)
-    ? getCredentialsFromJSON(JSON_FILE_PATH)
-    : await getCredentials(oauth2Client);
-  if (credentials) {
-    oauth2Client.setCredentials(credentials);
-  }
+  const oauth2Client = await initializeOAuth2Client();
 
   try {
     const events = await getEvents(oauth2Client, process.argv[2]); // Get event name from command line argument

@@ -23,8 +23,19 @@ export const getCredentialsFromJSON = (JSONFilePath: string) => {
   }
 };
 
-export const getOAuth2Client = () => {
-  return new OAuth2Client(googleClientID, googleClientSecret, REDIRECT_URL);
+export const initializeOAuth2Client = async () => {
+  const oauth2Client = new OAuth2Client(
+    googleClientID,
+    googleClientSecret,
+    REDIRECT_URL
+  );
+  const credentials = fs.existsSync(JSON_FILE_PATH)
+    ? getCredentialsFromJSON(JSON_FILE_PATH)
+    : await getCredentials(oauth2Client);
+  if (credentials) {
+    oauth2Client.setCredentials(credentials);
+  }
+  return oauth2Client;
 };
 
 export const getCredentials = async (oauth2Client: OAuth2Client) => {

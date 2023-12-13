@@ -1,13 +1,10 @@
-import fs from 'fs';
 import readline from 'readline';
 import {
-  JSON_FILE_PATH,
   getCredentials,
-  getCredentialsFromJSON,
   getEvents,
   deleteEvents,
   createEvent,
-  getOAuth2Client,
+  initializeOAuth2Client,
 } from './util/googleApiUtility';
 import {
   displayDateTimeRange,
@@ -41,14 +38,7 @@ const getResponse = async (question: string): Promise<string> => {
 };
 
 const fixCommandHandler = async () => {
-  const oauth2Client = getOAuth2Client();
-
-  const credentials = fs.existsSync(JSON_FILE_PATH)
-    ? getCredentialsFromJSON(JSON_FILE_PATH)
-    : await getCredentials(oauth2Client);
-  if (credentials) {
-    oauth2Client.setCredentials(credentials);
-  }
+  const oauth2Client = await initializeOAuth2Client();
 
   if (process.argv.length !== 5) {
     console.log('Arguments are wrong.');
