@@ -34,17 +34,17 @@ const yes = async (question: string): Promise<boolean> => {
   });
 };
 
-export const fixCommandHandler = async () => {
+export const fixCommandHandler = async (
+  beforeEventName: string,
+  afterEventName: string,
+  dateTimeRange: string
+) => {
   const oauth2Client = await initializeOAuth2Client();
 
   if (process.argv.length !== 6) {
     console.log('Arguments are wrong.');
     exit();
   }
-
-  const beforeEventName = process.argv[3];
-  const afterEventName = process.argv[4];
-  const dateTimeRange = process.argv[5];
 
   try {
     const beforeEvents = await getEvents(oauth2Client, beforeEventName);
@@ -79,10 +79,8 @@ export const fixCommandHandler = async () => {
     }
   } catch (error) {
     await getCredentials(oauth2Client);
-    await fixCommandHandler();
+    await fixCommandHandler(beforeEventName, afterEventName, dateTimeRange);
   } finally {
     rl.close();
   }
 };
-
-fixCommandHandler();

@@ -5,7 +5,8 @@
   "main": "./dist/index.js",
   "scripts": {
     "start": "node ./dist/src/index.js",
-    "timehunt": "'ts-node' src/index.ts",
+    "hunt": "'ts-node' src/index.ts 'hunt'",
+    "fix": "'ts-node' src/index.ts 'fix'",
     "build": "tsc"
   },
   "bin": {
