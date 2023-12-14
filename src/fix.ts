@@ -42,21 +42,21 @@ const fixCommandHandler = async () => {
     exit();
   }
 
-  const dateTimeRange = process.argv[2];
+  const beforeEventName = process.argv[2];
   const afterEventName = process.argv[3];
-  const beforeEventName = process.argv[4];
+  const dateTimeRange = process.argv[4];
 
   try {
     const beforeEvents = await getEvents(oauth2Client, beforeEventName);
     if (beforeEvents) {
       const groupedEvents = groupEventsByDate(beforeEvents);
       if (groupedEvents.length > 0) {
-        await displayDateTimeRange(groupedEvents);
         const [startDateTime, endDateTime] =
           dividedDateTimeRange(dateTimeRange);
         if (isInRange(startDateTime, endDateTime, beforeEvents)) {
-          console.log('Are you sure to remove schedules?');
-          if (await yes(`And add this?\n${dateTimeRange}\n(y/n) > `)) {
+          console.log('May I remove these events?');
+          await displayDateTimeRange(groupedEvents);
+          if (await yes(`Then add this event.\n${dateTimeRange}\n(y/n) > `)) {
             await deleteEvents(oauth2Client, beforeEventName);
             await createEvent(
               oauth2Client,
@@ -64,6 +64,7 @@ const fixCommandHandler = async () => {
               startDateTime,
               endDateTime
             );
+            console.log('done.');
           }
         } else {
           console.log(
