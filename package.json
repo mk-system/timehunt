@@ -1,6 +1,6 @@
 {
   "name": "timehunt",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "description": "",
   "main": "./dist/index.js",
   "scripts": {
@@ -10,9 +10,8 @@
     "build": "tsc"
   },
   "bin": {
-    "timehunt hunt": "./dist/src/index.js",
-    "timehunt fix": "./dist/src/fix.js",
-    "build": "tsc"
+    "timehunt": "./dist/src/index.js",
+    "timehunt-fix": "./dist/src/fix.js"
   },
   "packageManager": "pnpm@8.6.12",
   "author": "",
