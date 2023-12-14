@@ -67,7 +67,7 @@ const fixCommandHandler = async () => {
           }
         } else {
           console.log(
-            `Could not find schedule in "${beforeEventName}" events.`
+            `"${beforeEventName}" is outside the scope of the retrieved event.`
           );
         }
       } else {
