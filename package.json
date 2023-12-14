@@ -7,6 +7,7 @@
     "start": "node ./dist/src/index.js",
     "hunt": "'ts-node' src/index.ts 'hunt'",
     "fix": "'ts-node' src/index.ts 'fix'",
+    "help": "'ts-node' src/index.ts 'help'",
     "build": "tsc"
   },
   "bin": {
