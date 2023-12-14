@@ -46,8 +46,8 @@ switch (process.argv[2]) {
     fixCommandHandler(process.argv[3], process.argv[4], process.argv[5]);
     break;
   case 'help':
-    console.log(displayHowToUse());
-    break;
+  case '-h':
+  case '--help':
   default:
     console.log(displayHowToUse());
 }
