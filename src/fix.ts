@@ -34,7 +34,7 @@ const yes = async (question: string): Promise<boolean> => {
   });
 };
 
-const fixCommandHandler = async () => {
+export const fixCommandHandler = async () => {
   const oauth2Client = await initializeOAuth2Client();
 
   if (process.argv.length !== 5) {

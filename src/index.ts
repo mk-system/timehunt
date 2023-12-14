@@ -7,6 +7,7 @@ import {
   displayDateTimeRange,
   groupEventsByDate,
 } from './util/dateTimeUtility';
+import { fixCommandHandler } from './fix';
 
 const listEvents = async () => {
   const oauth2Client = await initializeOAuth2Client();
@@ -29,4 +30,8 @@ const listEvents = async () => {
   }
 };
 
-listEvents();
+if (process.argv[2] === 'fix') {
+  fixCommandHandler();
+} else {
+  listEvents();
+}
