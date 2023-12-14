@@ -50,4 +50,5 @@ switch (process.argv[2]) {
   case '--help':
   default:
     console.log(displayHowToUse());
+    exit();
 }
