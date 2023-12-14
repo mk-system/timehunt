@@ -1,17 +1,17 @@
 {
   "name": "timehunt",
-  "version": "1.1.1",
+  "version": "1.1.5",
   "description": "",
   "main": "./dist/index.js",
   "scripts": {
     "start": "node ./dist/src/index.js",
-    "hunt": "'ts-node' src/index.ts",
-    "fix": "'ts-node' src/fix.ts",
+    "hunt": "'ts-node' src/index.ts 'hunt'",
+    "fix": "'ts-node' src/index.ts 'fix'",
+    "help": "'ts-node' src/index.ts 'help'",
     "build": "tsc"
   },
   "bin": {
-    "timehunt": "dist/src/index.js",
-    "timehunt_fix": "dist/src/fix.js"
+    "timehunt": "dist/src/index.js"
   },
   "packageManager": "pnpm@8.6.12",
   "author": "",
