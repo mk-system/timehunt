@@ -37,14 +37,14 @@ const yes = async (question: string): Promise<boolean> => {
 export const fixCommandHandler = async () => {
   const oauth2Client = await initializeOAuth2Client();
 
-  if (process.argv.length !== 5) {
+  if (process.argv.length !== 6) {
     console.log('Arguments are wrong.');
     exit();
   }
 
-  const beforeEventName = process.argv[2];
-  const afterEventName = process.argv[3];
-  const dateTimeRange = process.argv[4];
+  const beforeEventName = process.argv[3];
+  const afterEventName = process.argv[4];
+  const dateTimeRange = process.argv[5];
 
   try {
     const beforeEvents = await getEvents(oauth2Client, beforeEventName);
