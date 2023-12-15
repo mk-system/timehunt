@@ -31,6 +31,7 @@ const listEvents = async (eventName: string) => {
       console.log('Could not found event.');
     }
   } catch (error) {
+    console.log(error);
     await getCredentials(oauth2Client);
     await listEvents(eventName);
   } finally {

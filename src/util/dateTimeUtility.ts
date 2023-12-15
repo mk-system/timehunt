@@ -1,6 +1,8 @@
 import { format, isSameHour, isWithinInterval, parseISO } from 'date-fns';
 import ja from 'date-fns/locale/ja';
 import { calendar_v3 } from 'googleapis';
+import { initializeI18n } from '../translation';
+import { i18n } from 'i18next';
 
 export type Element = [string, calendar_v3.Schema$Event[]];
 export type GroupEvents = Element[];
@@ -21,15 +23,15 @@ const formatTime = (date: Date) => {
   return convertToJapaneseDateFormat(date, 'HH:mm');
 };
 
-export const getTimeStr = (start: string, end: string) => {
+export const getTimeStr = (start: string, end: string, i18nInstance: i18n) => {
   if (start === end) {
-    return '終日';
+    return i18nInstance.t('allDay');
   } else {
     const convertedStartTime = parseISO(start);
     const convertedEndTime = parseISO(end);
 
     if (isFullDay(convertedStartTime, convertedEndTime)) {
-      return '終日';
+      return i18nInstance.t('allDay');
     } else {
       const startTimeStr = formatTime(convertedStartTime);
       const endTimeStr = isSameHour(convertedEndTime, 19)
@@ -41,17 +43,21 @@ export const getTimeStr = (start: string, end: string) => {
 };
 
 export const displayDateTimeRange = async (groupedEvents: GroupEvents) => {
-  for (const [date, eventsOnDate] of groupedEvents) {
-    const eventStrs = eventsOnDate.map((event: calendar_v3.Schema$Event) => {
-      const { start, end } = getTimeStrFromEvent(event);
-      return getTimeStr(start, end);
-    });
-    console.log(
-      `${convertToJapaneseDateFormat(
-        parseISO(date),
-        'yyyy年M月d日(E)'
-      )} : ${eventStrs.join(' or ')}`
-    );
+  const i18nInstance = await initializeI18n();
+  if (i18nInstance) {
+    console.log(i18nInstance.t('dateFormat'));
+    for (const [date, eventsOnDate] of groupedEvents) {
+      const eventStrs = eventsOnDate.map((event: calendar_v3.Schema$Event) => {
+        const { start, end } = getTimeStrFromEvent(event);
+        return getTimeStr(start, end, i18nInstance);
+      });
+      console.log(
+        `${convertToJapaneseDateFormat(
+          parseISO(date),
+          i18nInstance.t('dateFormat')
+        )} : ${eventStrs.join(' or ')}`
+      );
+    }
   }
 };
 
