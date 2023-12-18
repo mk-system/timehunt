@@ -1,13 +1,17 @@
 import { format, isSameHour, isWithinInterval, parseISO } from 'date-fns';
 import ja from 'date-fns/locale/ja';
 import { calendar_v3 } from 'googleapis';
+import * as i18n from 'i18n';
 import { initializeI18n } from '../translation';
-import { i18n } from 'i18next';
+
+initializeI18n();
 
 export type Element = [string, calendar_v3.Schema$Event[]];
 export type GroupEvents = Element[];
 
 const isFullDay = (start: Date, end: Date) => {
+  console.log(start);
+  console.log(end);
   return isSameHour(start, 9) && isSameHour(end, 19);
 };
 
@@ -23,15 +27,15 @@ const formatTime = (date: Date) => {
   return convertToJapaneseDateFormat(date, 'HH:mm');
 };
 
-export const getTimeStr = (start: string, end: string, i18nInstance: i18n) => {
+export const getTimeStr = (start: string, end: string) => {
   if (start === end) {
-    return i18nInstance.t('allDay');
+    return i18n.__('ALL_DAY');
   } else {
     const convertedStartTime = parseISO(start);
     const convertedEndTime = parseISO(end);
 
     if (isFullDay(convertedStartTime, convertedEndTime)) {
-      return i18nInstance.t('allDay');
+      return i18n.__('ALL_DAY');
     } else {
       const startTimeStr = formatTime(convertedStartTime);
       const endTimeStr = isSameHour(convertedEndTime, 19)
@@ -43,21 +47,17 @@ export const getTimeStr = (start: string, end: string, i18nInstance: i18n) => {
 };
 
 export const displayDateTimeRange = async (groupedEvents: GroupEvents) => {
-  const i18nInstance = await initializeI18n();
-  if (i18nInstance) {
-    console.log(i18nInstance.t('dateFormat'));
-    for (const [date, eventsOnDate] of groupedEvents) {
-      const eventStrs = eventsOnDate.map((event: calendar_v3.Schema$Event) => {
-        const { start, end } = getTimeStrFromEvent(event);
-        return getTimeStr(start, end, i18nInstance);
-      });
-      console.log(
-        `${convertToJapaneseDateFormat(
-          parseISO(date),
-          i18nInstance.t('dateFormat')
-        )} : ${eventStrs.join(' or ')}`
-      );
-    }
+  for (const [date, eventsOnDate] of groupedEvents) {
+    const eventStrs = eventsOnDate.map((event: calendar_v3.Schema$Event) => {
+      const { start, end } = getTimeStrFromEvent(event);
+      return getTimeStr(start, end);
+    });
+    console.log(
+      `${convertToJapaneseDateFormat(
+        parseISO(date),
+        i18n.__('DATE_FORMAT')
+      )} : ${eventStrs.join(' or ')}`
+    );
   }
 };
 

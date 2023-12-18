@@ -1,8 +1,8 @@
-import i18next from 'i18next';
-import Backend from 'i18next-fs-backend';
+import * as i18n from 'i18n';
+import path from 'path';
 import { getEnv } from './lib/env';
 
-export const initializeI18n = async () => {
+export const initializeI18n = () => {
   const { locale } = getEnv();
   const language =
     locale === 'ja' || locale === 'japanese'
@@ -11,17 +11,9 @@ export const initializeI18n = async () => {
         ? 'en'
         : 'ja';
 
-  try {
-    await i18next.use(Backend).init({
-      lng: language,
-      fallbackLng: 'ja',
-      preload: ['ja', 'en'],
-      backend: {
-        loadPath: './locales/{{lng}}/translations.json',
-      },
-    });
-    return i18next;
-  } catch (error) {
-    console.log(error);
-  }
+  i18n.configure({
+    locales: [language],
+    directory: path.join(__dirname, '/locales'),
+    objectNotation: true,
+  });
 };
