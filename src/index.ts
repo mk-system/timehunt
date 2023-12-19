@@ -10,6 +10,7 @@ import {
 import { fixCommandHandler } from './fix';
 import { exit } from 'process';
 import { displayHowToUse } from './help';
+import { initializeI18n } from './translation';
 
 const listEvents = async (eventName: string) => {
   const oauth2Client = await initializeOAuth2Client();
@@ -38,6 +39,8 @@ const listEvents = async (eventName: string) => {
     exit();
   }
 };
+
+initializeI18n();
 
 switch (process.argv[2]) {
   case 'hunt':
