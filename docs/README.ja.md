@@ -13,14 +13,14 @@
 GOOGLE_CLIENT_ID="(Google Cloud Consoleから取得してください)"
 GOOGLE_CLIENT_SECRET="(Google Cloud Consoleから取得してください)"
 GOOGLE_CALENDAR_ID="(ご自身のGoogleカレンダーのカレンダーIDを貼り付けてください)"
+LOCALE="('ja' or 'en')"
 ```
 
 ### 実行コマンド
 
 ```bash
-npm i -g pnpm
-pnpm i
-pnpm hunt "会議"
+npm i -g timehunt
+timehunt hunt "meeting"
 ```
 
 ### 実行結果

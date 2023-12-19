@@ -13,14 +13,14 @@
 GOOGLE_CLIENT_ID="(Get it from Google Cloud Console)"
 GOOGLE_CLIENT_SECRET="(Get it from Google Cloud Console)"
 GOOGLE_CALENDAR_ID="(Please paste your own Google Calendar calendar ID)"
+LOCALE="('ja' or 'en')"
 ```
 
 ### Execution command
 
 ```bash
-npm i -g pnpm
-pnpm i
-pnpm hunt "meeting"
+npm i -g timehunt
+timehunt hunt "meeting"
 ```
 
 ### Execution result
