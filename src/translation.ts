@@ -1,17 +1,10 @@
-import * as i18n from 'i18n';
-import path from 'path';
+import i18next from 'i18next';
+import Backend from 'i18next-fs-backend';
+import translationJa from './locales/ja.json';
+import translationEn from './locales/en.json';
 import { getEnv } from './lib/env';
 
-export const initializeI18n = () => {
-  i18n.configure({
-    locales: ['ja', 'en'],
-    directory: path.join(__dirname, '/locales'),
-    objectNotation: true,
-    updateFiles: false,
-  });
-};
-
-export const convertToLocale = (key: string) => {
+export const initializeI18n = async () => {
   const { locale } = getEnv();
   const language =
     locale === 'ja' || locale === 'japanese'
@@ -19,6 +12,15 @@ export const convertToLocale = (key: string) => {
       : locale === 'en' || locale === 'english'
         ? 'en'
         : 'ja';
-  i18n.setLocale(language);
-  return i18n.__(key);
+
+  const resources = {
+    ja: { translation: translationJa },
+    en: { translation: translationEn },
+  };
+
+  await i18next.use(Backend).init({
+    lng: language,
+    fallbackLng: 'en',
+    resources,
+  });
 };
