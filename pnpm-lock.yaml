@@ -26,6 +26,9 @@ dependencies:
   http-server:
     specifier: ^14.1.1
     version: 14.1.1
+  i18next:
+    specifier: ^23.7.11
+    version: 23.7.11
   nodemon:
     specifier: ^3.0.1
     version: 3.0.1
@@ -1100,6 +1103,12 @@ packages:
   /human-signals@4.3.1:
     resolution: {integrity: sha512-nZXjEF2nbo7lIw3mgYjItAfgQXog3OjJogSbKa2CQIIvSGWcKgeJnQlNXip6NglNzYH45nSRiEVimMvYL8DDqQ==}
     engines: {node: '>=14.18.0'}
+    dev: false
+
+  /i18next@23.7.11:
+    resolution: {integrity: sha512-A/vOkw8vY99YHU9A1Td3I1dcTiYaPnwBWzrpVzfXUXSYgogK3cmBcmop/0cnXPc6QpUWIyqaugKNxRUEZVk9Nw==}
+    dependencies:
+      '@babel/runtime': 7.23.4
     dev: false
 
   /iconv-lite@0.6.3:
