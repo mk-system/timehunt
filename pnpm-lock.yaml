@@ -29,6 +29,9 @@ dependencies:
   i18next:
     specifier: ^23.7.11
     version: 23.7.11
+  i18next-fs-backend:
+    specifier: ^2.3.1
+    version: 2.3.1
   nodemon:
     specifier: ^3.0.1
     version: 3.0.1
@@ -1103,6 +1106,10 @@ packages:
   /human-signals@4.3.1:
     resolution: {integrity: sha512-nZXjEF2nbo7lIw3mgYjItAfgQXog3OjJogSbKa2CQIIvSGWcKgeJnQlNXip6NglNzYH45nSRiEVimMvYL8DDqQ==}
     engines: {node: '>=14.18.0'}
+    dev: false
+
+  /i18next-fs-backend@2.3.1:
+    resolution: {integrity: sha512-tvfXskmG/9o+TJ5Fxu54sSO5OkY6d+uMn+K6JiUGLJrwxAVfer+8V3nU8jq3ts9Pe5lXJv4b1N7foIjJ8Iy2Gg==}
     dev: false
 
   /i18next@23.7.11:
