@@ -9,7 +9,7 @@ import {
 } from 'date-fns';
 import ja from 'date-fns/locale/ja';
 import { calendar_v3 } from 'googleapis';
-import { convertToLocale } from '../translation';
+import i18next from 'i18next';
 
 export type Element = [string, calendar_v3.Schema$Event[]];
 export type GroupEvents = Element[];
@@ -35,7 +35,7 @@ const formatTime = (date: Date) => {
 };
 
 export const getTimeStr = (start: string, end: string) => {
-  const allDay = convertToLocale('ALL_DAY');
+  const allDay = i18next.t('ALL_DAY');
   if (start === end) {
     return allDay;
   } else {
@@ -63,7 +63,7 @@ export const displayDateTimeRange = async (groupedEvents: GroupEvents) => {
     console.log(
       `${convertToJapaneseDateFormat(
         parseISO(date),
-        convertToLocale('DATE_FORMAT')
+        i18next.t('DATE_FORMAT')
       )} : ${eventStrs.join(' or ')}`
     );
   }
