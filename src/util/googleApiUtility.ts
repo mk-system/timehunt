@@ -3,16 +3,18 @@ import { Credentials, OAuth2Client } from 'google-auth-library';
 import { getEnv } from '../lib/env';
 import readline from 'readline';
 import { homedir } from 'os';
-import { join } from 'path';
-import fs from 'fs';
+import { dirname, join } from 'path';
+import fs, { existsSync } from 'fs';
 
 export const REDIRECT_URL = 'urn:ietf:wg:oauth:2.0:oob';
 export const { googleClientID, googleClientSecret, googleCalendarID } =
   getEnv();
 const SCOPE = ['https://www.googleapis.com/auth/calendar'];
 
-export const JSON_DIR_PATH = join(homedir(), '.conf', 'timehunt', 'cache');
-export const JSON_FILE_PATH = join(JSON_DIR_PATH, 'token.json');
+const xdgConfig = process.env.XDG_CONFIG_HOME || join(homedir(), '.config');
+const xdgCache = process.env.XDG_CACHE_HOME || join(homedir(), '.cache');
+const JSON_DIR_PATH = join(xdgConfig, 'timehunt');
+const JSON_FILE_PATH = join(xdgCache, 'timehunt', 'token.json');
 
 export const getCredentialsFromJSON = (JSONFilePath: string) => {
   const buff = fs.readFileSync(JSONFilePath, 'utf8');
@@ -54,7 +56,10 @@ export const getCredentials = async (oauth2Client: OAuth2Client) => {
     rl.question('Please paste the code shown: ', (code: string) => {
       oauth2Client.getToken(code, (_err, tokens) => {
         if (tokens) {
-          fs.mkdirSync(JSON_DIR_PATH, { recursive: true });
+          const dirPath = dirname(JSON_FILE_PATH);
+          if (!existsSync(dirPath)) {
+            fs.mkdirSync(dirPath, { recursive: true });
+          }
           fs.writeFileSync(JSON_FILE_PATH, JSON.stringify(tokens));
           console.log('Token has been issued: ', JSON_FILE_PATH);
           resolve(tokens);
