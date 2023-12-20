@@ -1,7 +1,7 @@
 import 'dotenv/config';
 
 export const getEnv = () => {
-  const { GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GOOGLE_CALENDAR_ID, LOCALE } =
+  const { GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GOOGLE_CALENDAR_ID } =
     process.env;
 
   if (!GOOGLE_CLIENT_ID) {
@@ -13,14 +13,10 @@ export const getEnv = () => {
   if (!GOOGLE_CALENDAR_ID) {
     throw Error('Please set the environment variable GOOGLE_CALENDAR_ID.');
   }
-  if (!LOCALE) {
-    throw Error('Please set the environment variable LOCALE.');
-  }
 
   return {
     googleClientID: GOOGLE_CLIENT_ID,
     googleClientSecret: GOOGLE_CLIENT_SECRET,
     googleCalendarID: GOOGLE_CALENDAR_ID,
-    locale: LOCALE,
   };
 };

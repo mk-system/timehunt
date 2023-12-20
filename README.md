@@ -13,7 +13,6 @@
 GOOGLE_CLIENT_ID="(Get it from Google Cloud Console)"
 GOOGLE_CLIENT_SECRET="(Get it from Google Cloud Console)"
 GOOGLE_CALENDAR_ID="(Please paste your own Google Calendar calendar ID)"
-LOCALE="('ja' or 'en')"
 ```
 
 ### Execution command
