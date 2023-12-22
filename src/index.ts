@@ -10,6 +10,7 @@ import {
 import { fixCommandHandler } from './fix';
 import { exit } from 'process';
 import { displayHowToUse } from './help';
+import { syncComanndHandler } from './sync';
 
 const listEvents = async (eventName: string) => {
   const oauth2Client = await initializeOAuth2Client();
@@ -44,6 +45,9 @@ switch (process.argv[2]) {
     break;
   case 'fix':
     fixCommandHandler(process.argv[3], process.argv[4], process.argv[5]);
+    break;
+  case 'sync':
+    syncComanndHandler();
     break;
   case 'help':
   case '-h':
