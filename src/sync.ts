@@ -13,15 +13,12 @@ import * as readline from 'readline';
 import * as readlineSync from 'readline-sync';
 
 export const syncComanndHandler = async () => {
-  // EWSの設定
   const service = new ExchangeService();
-  service.Url = new Uri('https://outlook.office365.com/Ews/Exchange.asmx'); // EWSエンドポイント
+  service.Url = new Uri('https://outlook.office365.com/Ews/Exchange.asmx');
 
   const username = await getUsername();
   const password = getPassword();
-  console.log(`Username: ${username}`);
-  console.log(`Password: ${'*'.repeat(password.length)}`); // パスワードを'*'で表示
-  service.Credentials = new WebCredentials(username, password); // ユーザー名とパスワード
+  service.Credentials = new WebCredentials(username, password);
 
   const startDate = DateTime.Now;
   const endDate = startDate.AddDays(30);
@@ -65,9 +62,8 @@ const getUsername = (): Promise<string> => {
   });
 };
 
-const getPassword = (): string => {
-  const password: string = readlineSync.question('Password: ', {
+const getPassword = () => {
+  return readlineSync.question('Password: ', {
     hideEchoBack: true, // パスワードを隠す
   });
-  return password;
 };
