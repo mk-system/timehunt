@@ -20,3 +20,7 @@ export const getEnv = () => {
     googleCalendarID: GOOGLE_CALENDAR_ID,
   };
 };
+
+export const getLanguage = () => {
+  return process.env.LANG?.split('.')[0] || '';
+};

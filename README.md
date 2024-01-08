@@ -18,18 +18,15 @@ GOOGLE_CALENDAR_ID="(Please paste your own Google Calendar calendar ID)"
 ### Execution command
 
 ```bash
-npm i -g pnpm
-pnpm i
-pnpm hunt "meeting"
+npm i -g timehunt
+timehunt hunt "meeting"
 ```
 
 ### Execution result
 
 ```bash
 Upcoming events:
-2023年11月29日(水) : 15:00～16:00
-2023年12月6日(水) : 15:00～16:00
-2023年12月13日(水) : 15:00～16:00
-2023年12月20日(水) : 15:00～16:00
-...
+Thu, 12/21/2023 : 13:00～14:00 or 15:00～16:00
+Fri, 12/22/2023 : All day
+Fri, 01/05/2024 : 10:15～13:15
 ```

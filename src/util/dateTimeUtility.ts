@@ -1,12 +1,25 @@
-import { format, isSameHour, isWithinInterval, parseISO } from 'date-fns';
+import {
+  format,
+  isSameHour,
+  isWithinInterval,
+  parseISO,
+  setHours,
+  setMinutes,
+  setSeconds,
+} from 'date-fns';
 import ja from 'date-fns/locale/ja';
 import { calendar_v3 } from 'googleapis';
+import i18next from 'i18next';
 
 export type Element = [string, calendar_v3.Schema$Event[]];
 export type GroupEvents = Element[];
 
 const isFullDay = (start: Date, end: Date) => {
-  return isSameHour(start, 9) && isSameHour(end, 19);
+  const startOfBusinessDay = setSeconds(setMinutes(setHours(start, 9), 0), 0);
+  const endOfBusinessDay = setSeconds(setMinutes(setHours(end, 19), 0), 0);
+  return (
+    isSameHour(start, startOfBusinessDay) && isSameHour(end, endOfBusinessDay)
+  );
 };
 
 export const convertToJapaneseDateFormat = (
@@ -22,14 +35,15 @@ const formatTime = (date: Date) => {
 };
 
 export const getTimeStr = (start: string, end: string) => {
+  const allDay = i18next.t('ALL_DAY');
   if (start === end) {
-    return '終日';
+    return allDay;
   } else {
     const convertedStartTime = parseISO(start);
     const convertedEndTime = parseISO(end);
 
     if (isFullDay(convertedStartTime, convertedEndTime)) {
-      return '終日';
+      return allDay;
     } else {
       const startTimeStr = formatTime(convertedStartTime);
       const endTimeStr = isSameHour(convertedEndTime, 19)
@@ -49,7 +63,7 @@ export const displayDateTimeRange = async (groupedEvents: GroupEvents) => {
     console.log(
       `${convertToJapaneseDateFormat(
         parseISO(date),
-        'yyyy年M月d日(E)'
+        i18next.t('DATE_FORMAT')
       )} : ${eventStrs.join(' or ')}`
     );
   }
