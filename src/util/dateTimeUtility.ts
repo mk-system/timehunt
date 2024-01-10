@@ -8,8 +8,10 @@ import {
   setSeconds,
 } from 'date-fns';
 import ja from 'date-fns/locale/ja';
+import en from 'date-fns/locale/en-US';
 import { calendar_v3 } from 'googleapis';
 import i18next from 'i18next';
+import { getLanguage } from '../lib/env';
 
 export type Element = [string, calendar_v3.Schema$Event[]];
 export type GroupEvents = Element[];
@@ -30,11 +32,11 @@ export const convertToJapaneseDateFormat = (
   return format(date, formatStr, { locale });
 };
 
-const formatTime = (date: Date) => {
-  return convertToJapaneseDateFormat(date, 'HH:mm');
+const convertTo12HourFormat = (date: Date, locale: Locale = ja) => {
+  return format(date, 'h:mm a', { locale });
 };
 
-export const getTimeStr = (start: string, end: string) => {
+export const getTimeStr = (start: string, end: string, locale: Locale = ja) => {
   const allDay = i18next.t('ALL_DAY');
   if (start === end) {
     return allDay;
@@ -45,10 +47,10 @@ export const getTimeStr = (start: string, end: string) => {
     if (isFullDay(convertedStartTime, convertedEndTime)) {
       return allDay;
     } else {
-      const startTimeStr = formatTime(convertedStartTime);
+      const startTimeStr = convertTo12HourFormat(convertedStartTime, locale);
       const endTimeStr = isSameHour(convertedEndTime, 19)
         ? ''
-        : `～${formatTime(convertedEndTime)}`;
+        : `～${convertTo12HourFormat(convertedEndTime, locale)}`;
       return `${startTimeStr}${endTimeStr}`;
     }
   }
@@ -58,7 +60,7 @@ export const displayDateTimeRange = async (groupedEvents: GroupEvents) => {
   for (const [date, eventsOnDate] of groupedEvents) {
     const eventStrs = eventsOnDate.map((event: calendar_v3.Schema$Event) => {
       const { start, end } = getTimeStrFromEvent(event);
-      return getTimeStr(start, end);
+      return getTimeStr(start, end, getLanguage() == 'ja' ? ja : en);
     });
     console.log(
       `${convertToJapaneseDateFormat(

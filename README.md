@@ -26,7 +26,7 @@ timehunt hunt "meeting"
 
 ```bash
 Upcoming events:
-Thu, 12/21/2023 : 13:00～14:00 or 15:00～16:00
-Fri, 12/22/2023 : All day
-Fri, 01/05/2024 : 10:15～13:15
+Tue, 21 Dec 2023 : 1:00 PM-2:00 PM or 3:00 PM-4:00 PM
+Fri, 22 Dec 2023 : All day
+Fri, 01 Jan 2024 : 10:15 AM-1:15 PM
 ```
