@@ -11,9 +11,7 @@ export const { googleClientID, googleClientSecret, googleCalendarID } =
   getEnv();
 const SCOPE = ['https://www.googleapis.com/auth/calendar'];
 
-const xdgConfig = process.env.XDG_CONFIG_HOME || join(homedir(), '.config');
 const xdgCache = process.env.XDG_CACHE_HOME || join(homedir(), '.cache');
-const JSON_DIR_PATH = join(xdgConfig, 'timehunt');
 const JSON_FILE_PATH = join(xdgCache, 'timehunt', 'token.json');
 
 export const getCredentialsFromJSON = (JSONFilePath: string) => {
