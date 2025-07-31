@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 import { huntCommandHandler } from './hunt';
 import { fixCommandHandler } from './fix';
 import { exit } from 'process';
