@@ -1,5 +1,7 @@
 import 'dotenv/config';
 
+// Desktop application OAuth credentials - safe to embed in public code
+// These credentials are for a desktop app and can be safely embedded in public repositories
 export const GOOGLE_CLIENT_ID = '985313163629-03oobt1mkn2ie11kbjcb4lpjf3djtjlt.apps.googleusercontent.com';
 export const GOOGLE_CLIENT_SECRET = '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';
 

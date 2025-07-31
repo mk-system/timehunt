@@ -89,9 +89,9 @@ export class PKCEHelper {
             res.end(`
               <html>
                 <body>
-                  <h1>認証エラー</h1>
-                  <p>認証に失敗しました: ${error}</p>
-                  <p>このウィンドウを閉じてください。</p>
+                  <h1>Authentication Error</h1>
+                  <p>Authentication failed: ${error}</p>
+                  <p>Please close this window.</p>
                 </body>
               </html>
             `);
@@ -104,9 +104,9 @@ export class PKCEHelper {
             res.end(`
               <html>
                 <body>
-                  <h1>認証成功</h1>
-                  <p>Google認証が完了しました。</p>
-                  <p>このウィンドウを閉じてください。</p>
+                  <h1>Authentication Successful</h1>
+                  <p>Google authentication completed.</p>
+                  <p>Please close this window.</p>
                   <script>window.close();</script>
                 </body>
               </html>
@@ -121,14 +121,14 @@ export class PKCEHelper {
       });
 
       server.listen(this.port, 'localhost', () => {
-        console.log(`ローカルサーバーがポート ${this.port} で起動しました`);
+        console.log(`Local server started on port ${this.port}`);
       });
 
       server.on('error', (err: NodeJS.ErrnoException) => {
         if (err.code === 'EADDRINUSE') {
           this.port++;
           if (this.port > 8090) {
-            reject(new Error('利用可能なポートが見つかりません'));
+            reject(new Error('No available port found'));
             return;
           }
           server.listen(this.port, 'localhost');
@@ -175,14 +175,14 @@ export async function authenticateWithPKCE(
   
   const authUrl = pkce.generateAuthUrl(oauth2Client, scopes);
   
-  console.log('ブラウザで認証ページを開いています...');
-  console.log('認証URL:', authUrl);
+  console.log('Opening authentication page in browser...');
+  console.log('Authentication URL:', authUrl);
   
   try {
     await openBrowser(authUrl);
-    console.log('ブラウザを開きました。');
+    console.log('Browser opened.');
   } catch (error) {
-    console.log('ブラウザを自動で開けませんでした。上記URLを手動でブラウザで開いてください。');
+    console.log('Could not open browser automatically. Please open the above URL manually in your browser.');
   }
   
   try {

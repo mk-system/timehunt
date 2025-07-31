@@ -48,12 +48,12 @@ export const getCredentials = async (oauth2Client: OAuth2Client) => {
         fs.mkdirSync(dirPath, { recursive: true });
       }
       fs.writeFileSync(JSON_FILE_PATH, JSON.stringify(tokens));
-      console.log('認証が完了しました。トークンを保存:', JSON_FILE_PATH);
+      console.log('Authentication completed. Token saved:', JSON_FILE_PATH);
       return tokens;
     }
     return undefined;
   } catch (error) {
-    console.error('認証に失敗しました:', error);
+    console.error('Authentication failed:', error);
     return undefined;
   }
 };
