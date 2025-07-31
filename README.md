@@ -10,10 +10,10 @@
 ### Environment setting
 
 ```.env
-GOOGLE_CLIENT_ID="(Get it from Google Cloud Console)"
-GOOGLE_CLIENT_SECRET="(Get it from Google Cloud Console)"
 GOOGLE_CALENDAR_ID="(Please paste your own Google Calendar calendar ID)"
 ```
+
+**Note:** Google OAuth authentication is now built-in. You no longer need to register your own Google Cloud Console application or set GOOGLE_CLIENT_ID/GOOGLE_CLIENT_SECRET.
 
 ### Execution command
 

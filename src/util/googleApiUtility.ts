@@ -1,14 +1,12 @@
 import { calendar_v3, google } from 'googleapis';
 import { Credentials, OAuth2Client } from 'google-auth-library';
-import { getEnv } from '../lib/env';
-import readline from 'readline';
+import { getEnv, GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET } from '../lib/env';
 import { homedir } from 'os';
 import { dirname, join } from 'path';
 import fs, { existsSync } from 'fs';
+import { authenticateWithPKCE } from './pkceAuth';
 
-export const REDIRECT_URL = 'urn:ietf:wg:oauth:2.0:oob';
-export const { googleClientID, googleClientSecret, googleCalendarID } =
-  getEnv();
+export const { googleCalendarID } = getEnv();
 const SCOPE = ['https://www.googleapis.com/auth/calendar'];
 
 const xdgCache = process.env.XDG_CACHE_HOME || join(homedir(), '.cache');
@@ -25,13 +23,15 @@ export const getCredentialsFromJSON = (JSONFilePath: string) => {
 
 export const initializeOAuth2Client = async () => {
   const oauth2Client = new OAuth2Client(
-    googleClientID,
-    googleClientSecret,
-    REDIRECT_URL
+    GOOGLE_CLIENT_ID,
+    GOOGLE_CLIENT_SECRET,
+    'http://localhost:8080/callback'
   );
+  
   const credentials = fs.existsSync(JSON_FILE_PATH)
     ? getCredentialsFromJSON(JSON_FILE_PATH)
     : await getCredentials(oauth2Client);
+    
   if (credentials) {
     oauth2Client.setCredentials(credentials);
   }
@@ -39,35 +39,23 @@ export const initializeOAuth2Client = async () => {
 };
 
 export const getCredentials = async (oauth2Client: OAuth2Client) => {
-  return new Promise<Credentials | undefined>((resolve) => {
-    const rl = readline.createInterface({
-      input: process.stdin,
-      output: process.stdout,
-    });
-
-    const url = oauth2Client.generateAuthUrl({
-      access_type: 'offline',
-      scope: SCOPE,
-    });
-
-    console.log('Please open the URL on the right with your browser:\n', url);
-    rl.question('Please paste the code shown: ', (code: string) => {
-      oauth2Client.getToken(code, (_err, tokens) => {
-        if (tokens) {
-          const dirPath = dirname(JSON_FILE_PATH);
-          if (!existsSync(dirPath)) {
-            fs.mkdirSync(dirPath, { recursive: true });
-          }
-          fs.writeFileSync(JSON_FILE_PATH, JSON.stringify(tokens));
-          console.log('Token has been issued: ', JSON_FILE_PATH);
-          resolve(tokens);
-        } else {
-          resolve(undefined);
-        }
-      });
-      rl.close();
-    });
-  });
+  try {
+    const tokens = await authenticateWithPKCE(oauth2Client, SCOPE);
+    
+    if (tokens) {
+      const dirPath = dirname(JSON_FILE_PATH);
+      if (!existsSync(dirPath)) {
+        fs.mkdirSync(dirPath, { recursive: true });
+      }
+      fs.writeFileSync(JSON_FILE_PATH, JSON.stringify(tokens));
+      console.log('Authentication completed. Token saved:', JSON_FILE_PATH);
+      return tokens;
+    }
+    return undefined;
+  } catch (error) {
+    console.error('Authentication failed:', error);
+    return undefined;
+  }
 };
 
 const getCalendar = async (oauth2Client: OAuth2Client) => {
