@@ -6,12 +6,14 @@ export interface Config {
   DATE_FORMAT: string;
   TIME_FORMAT: string;
   TIME_SEPERATOR: string;
+  GOOGLE_CALENDAR_ID: string;
 }
 
 const DEFAULT_CONFIG: Config = {
   DATE_FORMAT: 'EEE, dd MMM yyyy',
   TIME_FORMAT: 'h:mm a',
-  TIME_SEPERATOR: '〜'
+  TIME_SEPERATOR: '〜',
+  GOOGLE_CALENDAR_ID: ''
 };
 
 const getConfigDir = (): string => {
