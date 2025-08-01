@@ -17,6 +17,7 @@ const showCurrentConfig = (): void => {
   console.log(`DATE_FORMAT=${config.DATE_FORMAT}`);
   console.log(`TIME_FORMAT=${config.TIME_FORMAT}`);
   console.log(`TIME_SEPERATOR=${config.TIME_SEPERATOR}`);
+  console.log(`GOOGLE_CALENDAR_ID=${config.GOOGLE_CALENDAR_ID}`);
 };
 
 const updateConfig = async (): Promise<void> => {
@@ -27,6 +28,7 @@ const updateConfig = async (): Promise<void> => {
   const dateFormat = await question(`Date format [current: ${config.DATE_FORMAT}]: `);
   const timeFormat = await question(`Time format [current: ${config.TIME_FORMAT}]: `);
   const timeSeparator = await question(`Time separator [current: ${config.TIME_SEPERATOR}]: `);
+  const googleCalendarId = await question(`Google Calendar ID [current: ${config.GOOGLE_CALENDAR_ID}]: `);
   
   const updates: Partial<Config> = {};
   
@@ -39,6 +41,9 @@ const updateConfig = async (): Promise<void> => {
   if (timeSeparator.trim()) {
     updates.TIME_SEPERATOR = timeSeparator.trim();
   }
+  if (googleCalendarId.trim()) {
+    updates.GOOGLE_CALENDAR_ID = googleCalendarId.trim();
+  }
   
   if (Object.keys(updates).length > 0) {
     saveConfig(updates);
@@ -49,7 +54,7 @@ const updateConfig = async (): Promise<void> => {
 };
 
 const parseKeyValue = (arg: string): { key: keyof Config; value: string } | null => {
-  const match = arg.match(/^(DATE_FORMAT|TIME_FORMAT|TIME_SEPERATOR)=(.+)$/);
+  const match = arg.match(/^(DATE_FORMAT|TIME_FORMAT|TIME_SEPERATOR|GOOGLE_CALENDAR_ID)=(.+)$/);
   if (!match) return null;
   
   const [, key, value] = match;
@@ -89,12 +94,13 @@ export const configCommand = async (args: string[]): Promise<void> => {
     console.log('  timehunt config set                           - Interactive configuration');
     console.log('  timehunt config set KEY=VALUE [KEY=VALUE...] - Set specific values directly');
     console.log('\nAvailable keys:');
-    console.log('  DATE_FORMAT     - Date format string');
-    console.log('  TIME_FORMAT     - Time format string');
-    console.log('  TIME_SEPERATOR  - Time separator character');
+    console.log('  DATE_FORMAT       - Date format string');
+    console.log('  TIME_FORMAT       - Time format string');
+    console.log('  TIME_SEPERATOR    - Time separator character');
+    console.log('  GOOGLE_CALENDAR_ID - Google Calendar ID');
     console.log('\nExamples:');
     console.log('  timehunt config set DATE_FORMAT=yyyy年MM月dd日(E)');
-    console.log('  timehunt config set TIME_FORMAT=H:mm TIME_SEPERATOR=-');
+    console.log('  timehunt config set GOOGLE_CALENDAR_ID=your-email@gmail.com');
   }
   
   rl.close();

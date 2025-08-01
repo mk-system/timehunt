@@ -1,4 +1,5 @@
 import 'dotenv/config';
+import { getConfigValue } from '../util/config';
 
 // Desktop application OAuth credentials - safe to embed in public code
 // These credentials are for a desktop app and can be safely embedded in public repositories
@@ -6,14 +7,17 @@ export const GOOGLE_CLIENT_ID = '985313163629-03oobt1mkn2ie11kbjcb4lpjf3djtjlt.a
 export const GOOGLE_CLIENT_SECRET = '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';
 
 export const getEnv = () => {
-  const { GOOGLE_CALENDAR_ID } = process.env;
+  const envCalendarId = process.env.GOOGLE_CALENDAR_ID;
+  const configCalendarId = getConfigValue('GOOGLE_CALENDAR_ID');
+  
+  const googleCalendarID = envCalendarId || configCalendarId;
 
-  if (!GOOGLE_CALENDAR_ID) {
-    throw Error('Please set the environment variable GOOGLE_CALENDAR_ID.');
+  if (!googleCalendarID) {
+    throw Error('Please set GOOGLE_CALENDAR_ID either as environment variable or in config file using: timehunt config set GOOGLE_CALENDAR_ID=your-email@gmail.com');
   }
 
   return {
-    googleCalendarID: GOOGLE_CALENDAR_ID,
+    googleCalendarID,
   };
 };
 
