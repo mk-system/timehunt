@@ -12,6 +12,7 @@ import en from 'date-fns/locale/en-US';
 import { calendar_v3 } from 'googleapis';
 import i18next from 'i18next';
 import { getLanguage } from '../lib/env';
+import { getConfigValue } from './config';
 
 export type Element = [string, calendar_v3.Schema$Event[]];
 export type GroupEvents = Element[];
@@ -33,7 +34,8 @@ export const convertToJapaneseDateFormat = (
 };
 
 const convertTo12HourFormat = (date: Date, locale: Locale = ja) => {
-  return format(date, 'h:mm a', { locale });
+  const timeFormat = getConfigValue('TIME_FORMAT');
+  return format(date, timeFormat, { locale });
 };
 
 export const getTimeStr = (start: string, end: string, locale: Locale = ja) => {
@@ -48,9 +50,10 @@ export const getTimeStr = (start: string, end: string, locale: Locale = ja) => {
       return allDay;
     } else {
       const startTimeStr = convertTo12HourFormat(convertedStartTime, locale);
+      const timeSeparator = getConfigValue('TIME_SEPERATOR');
       const endTimeStr = isSameHour(convertedEndTime, 19)
         ? ''
-        : `～${convertTo12HourFormat(convertedEndTime, locale)}`;
+        : `${timeSeparator}${convertTo12HourFormat(convertedEndTime, locale)}`;
       return `${startTimeStr}${endTimeStr}`;
     }
   }
@@ -62,10 +65,11 @@ export const displayDateTimeRange = async (groupedEvents: GroupEvents) => {
       const { start, end } = getTimeStrFromEvent(event);
       return getTimeStr(start, end, getLanguage() == 'ja' ? ja : en);
     });
+    const dateFormat = getConfigValue('DATE_FORMAT');
     console.log(
       `${convertToJapaneseDateFormat(
         parseISO(date),
-        i18next.t('DATE_FORMAT')
+        dateFormat
       )} : ${eventStrs.join(' or ')}`
     );
   }
