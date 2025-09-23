@@ -67,8 +67,7 @@ export const getTimeStr = (start: string, end: string, locale: Locale) => {
   }
 };
 
-export const displayDateTimeRange = (groupedEvents: GroupEvents) => {
-  const locale: Locale = getLocale();
+export const displayDateTimeRange = (groupedEvents: GroupEvents, locale: Locale) => {
   for (const [date, eventsOnDate] of groupedEvents) {
     const eventStrs = eventsOnDate.map((event: calendar_v3.Schema$Event) => {
       const { start, end } = getTimeStrFromEvent(event);

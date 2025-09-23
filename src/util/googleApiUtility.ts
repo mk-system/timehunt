@@ -27,11 +27,11 @@ export const initializeOAuth2Client = async () => {
     GOOGLE_CLIENT_SECRET,
     'http://localhost:8080/callback'
   );
-  
+
   const credentials = fs.existsSync(JSON_FILE_PATH)
     ? getCredentialsFromJSON(JSON_FILE_PATH)
     : await getCredentials(oauth2Client);
-    
+
   if (credentials) {
     oauth2Client.setCredentials(credentials);
   }
@@ -41,7 +41,7 @@ export const initializeOAuth2Client = async () => {
 export const getCredentials = async (oauth2Client: OAuth2Client) => {
   try {
     const tokens = await authenticateWithPKCE(oauth2Client, SCOPE);
-    
+
     if (tokens) {
       const dirPath = dirname(JSON_FILE_PATH);
       if (!existsSync(dirPath)) {
@@ -69,13 +69,13 @@ export const getEvents = async (
   oauth2Client: OAuth2Client,
   eventName: string
 ) => {
-  const calendar = getCalendar(oauth2Client);
-
-  const now = new Date();
-  now.setHours(0, 0, 0, 0);
-  const timeMin = now.toISOString();
-
   try {
+    const calendar = getCalendar(oauth2Client);
+
+    const now = new Date();
+    now.setHours(0, 0, 0, 0);
+    const timeMin = now.toISOString();
+
     const response = await calendar.events.list({
       calendarId: googleCalendarID,
       q: eventName,

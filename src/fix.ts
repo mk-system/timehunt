@@ -11,6 +11,7 @@ import {
   dividedDateTimeRange,
   groupEventsByDate,
   isInRange,
+  getLocale,
 } from './util/dateTimeUtility';
 import { exit } from 'process';
 
@@ -39,6 +40,7 @@ export const fixCommandHandler = async (
   afterEventName: string,
   dateTimeRange: string
 ) => {
+  const locale = getLocale();
   const oauth2Client = await initializeOAuth2Client();
 
   if (process.argv.length !== 6) {
@@ -55,7 +57,7 @@ export const fixCommandHandler = async (
           dividedDateTimeRange(dateTimeRange);
         if (isInRange(startDateTime, endDateTime, beforeEvents)) {
           console.log('May I remove these events?');
-          displayDateTimeRange(groupedEvents);
+          displayDateTimeRange(groupedEvents, locale);
           if (await yes(`Then add this event.\n${dateTimeRange}\n(y/n) > `)) {
             await deleteEvents(oauth2Client, beforeEventName);
             await createEvent(
