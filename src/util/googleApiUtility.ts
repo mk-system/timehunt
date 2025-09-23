@@ -69,28 +69,20 @@ export const getEvents = async (
   oauth2Client: OAuth2Client,
   eventName: string
 ) => {
-  try {
-    const calendar = getCalendar(oauth2Client);
+  const calendar = getCalendar(oauth2Client);
 
-    const now = new Date();
-    now.setHours(0, 0, 0, 0);
-    const timeMin = now.toISOString();
+  const now = new Date();
+  now.setHours(0, 0, 0, 0);
+  const timeMin = now.toISOString();
 
-    const response = await calendar.events.list({
-      calendarId: googleCalendarID,
-      q: eventName,
-      singleEvents: true,
-      orderBy: 'startTime',
-      timeMin: timeMin,
-    });
-    const events = response.data.items;
-    if (events) {
-      return response.data.items as calendar_v3.Schema$Event[];
-    }
-  } catch (error) {
-    console.log(error);
-  }
-  return undefined;
+  const response = await calendar.events.list({
+    calendarId: googleCalendarID,
+    q: eventName,
+    singleEvents: true,
+    orderBy: 'startTime',
+    timeMin: timeMin,
+  });
+  return response.data.items;
 };
 
 const getEventIds = async (oauth2Client: OAuth2Client, eventName: string) => {
