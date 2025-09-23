@@ -18,7 +18,7 @@ export const huntCommandHandler = async (eventName: string) => {
       const groupedEvents = groupEventsByDate(events);
       if (groupedEvents.length > 0) {
         console.log('Upcoming events:');
-        await displayDateTimeRange(groupedEvents);
+        displayDateTimeRange(groupedEvents);
         if (events.length > 10) {
           console.log('The number of events exceeds 10.');
         }

@@ -55,7 +55,7 @@ export const fixCommandHandler = async (
           dividedDateTimeRange(dateTimeRange);
         if (isInRange(startDateTime, endDateTime, beforeEvents)) {
           console.log('May I remove these events?');
-          await displayDateTimeRange(groupedEvents);
+          displayDateTimeRange(groupedEvents);
           if (await yes(`Then add this event.\n${dateTimeRange}\n(y/n) > `)) {
             await deleteEvents(oauth2Client, beforeEventName);
             await createEvent(
