@@ -19,7 +19,7 @@ export type GroupEvents = Element[];
 
 export const getLocale = (): Locale => {
   const langEnv = getLanguage();
-  const [lang, encode] = langEnv.split(".");
+  const [lang, _encode] = langEnv.split(".");
   const [langCode, countryCode] = lang.split("_");
   let locale = Locales[langCode as keyof typeof Locales];
   if (!locale && countryCode) {
