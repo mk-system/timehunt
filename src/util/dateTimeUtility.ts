@@ -18,12 +18,17 @@ export type Element = [string, calendar_v3.Schema$Event[]];
 export type GroupEvents = Element[];
 
 export const getLocale = (): Locale => {
-  const lang = getLanguage();
-  const [langCode, countryCode] = lang.split(/[_.-]/);
-  const dateLocaleCode = `${langCode}${(countryCode ?? '').toUpperCase()}`;
-  const locale = Locales[dateLocaleCode as keyof typeof Locales];
+  const langEnv = getLanguage();
+  const [lang, encode] = langEnv.split(".");
+  const [langCode, countryCode] = lang.split("_");
+  let locale = Locales[langCode as keyof typeof Locales];
+  if (!locale && countryCode) {
+    const dateLocaleCode = `${langCode}${countryCode}`;
+    locale = Locales[dateLocaleCode as keyof typeof Locales];
+  }
+
   if (!locale) {
-    throw new Error(`Locale ${dateLocaleCode} not found in date-fns. Available locales: ${Object.keys(Locales).join(', ')}`);
+    throw new Error(`Locale ${langCode} or ${langCode}${countryCode} not found in date-fns. Available locales: ${Object.keys(Locales).join(', ')}`);
   }
   return locale;
 };
