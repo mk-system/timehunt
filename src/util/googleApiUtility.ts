@@ -58,7 +58,7 @@ export const getCredentials = async (oauth2Client: OAuth2Client) => {
   }
 };
 
-const getCalendar = async (oauth2Client: OAuth2Client) => {
+const getCalendar = (oauth2Client: OAuth2Client) => {
   return google.calendar({
     version: 'v3',
     auth: oauth2Client,
@@ -69,7 +69,7 @@ export const getEvents = async (
   oauth2Client: OAuth2Client,
   eventName: string
 ) => {
-  const calendar = await getCalendar(oauth2Client);
+  const calendar = getCalendar(oauth2Client);
 
   const now = new Date();
   now.setHours(0, 0, 0, 0);
@@ -108,7 +108,7 @@ const getEventIds = async (oauth2Client: OAuth2Client, eventName: string) => {
 
 const deleteEvent = async (oauth2Client: OAuth2Client, eventId: string) => {
   try {
-    const calender = await getCalendar(oauth2Client);
+    const calender = getCalendar(oauth2Client);
     await calender.events.delete({
       auth: oauth2Client,
       calendarId: googleCalendarID,
@@ -152,7 +152,7 @@ export const createEvent = async (
   };
 
   try {
-    const calendar = await getCalendar(oauth2Client);
+    const calendar = getCalendar(oauth2Client);
     return await calendar.events.insert({
       calendarId: googleCalendarID,
       requestBody: event,
