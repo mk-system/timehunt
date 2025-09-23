@@ -74,7 +74,7 @@ export const displayDateTimeRange = (groupedEvents: GroupEvents, locale: Locale)
       return getTimeStr(start, end, locale);
     });
     const dateFormat = getConfigValue('DATE_FORMAT');
-    const str = format(parseISO(date), dateFormat, { locale })
+    const str = format(parseISO(date), dateFormat, { locale });
     console.log(
       `${str} : ${eventStrs.join(' or ')}`
     );
