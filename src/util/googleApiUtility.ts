@@ -1,10 +1,10 @@
 import { calendar_v3, google } from 'googleapis';
 import { Credentials, OAuth2Client } from 'google-auth-library';
-import { getEnv, GOOGLE_CLIENT_ID } from '../lib/env';
+import { getEnv, GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET } from '../lib/env';
 import { homedir } from 'os';
 import { dirname, join } from 'path';
 import fs, { existsSync } from 'fs';
-import { authenticateWithPKCE } from './pkceAuth';
+import { authenticateWithDeviceFlow } from './deviceAuth';
 
 export const { googleCalendarID } = getEnv();
 const SCOPE = ['https://www.googleapis.com/auth/calendar'];
@@ -24,8 +24,7 @@ export const getCredentialsFromJSON = (JSONFilePath: string) => {
 export const initializeOAuth2Client = async () => {
   const oauth2Client = new OAuth2Client(
     GOOGLE_CLIENT_ID,
-    undefined,
-    'http://localhost:8080/callback'
+    GOOGLE_CLIENT_SECRET
   );
 
   const credentials = fs.existsSync(JSON_FILE_PATH)
@@ -40,7 +39,7 @@ export const initializeOAuth2Client = async () => {
 
 export const getCredentials = async (oauth2Client: OAuth2Client) => {
   try {
-    const tokens = await authenticateWithPKCE(oauth2Client, SCOPE);
+    const tokens = await authenticateWithDeviceFlow(GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, SCOPE);
 
     if (tokens) {
       const dirPath = dirname(JSON_FILE_PATH);
