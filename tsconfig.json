@@ -4,11 +4,10 @@
     "lib": [
       "es2021"
     ],
-    "module": "CommonJS",
+    "module": "node16",
     "outDir": "./dist",
     "rootDir": "./",
-    "moduleResolution": "node",
-    "ignoreDeprecations": "6.0",
+    "moduleResolution": "node16",
     "types": ["@types/node"],
     "resolveJsonModule": true,
     "allowJs": true,
