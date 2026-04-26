@@ -13,6 +13,5 @@ export const initializeI18n = async () => {
     lng: getLanguage(),
     fallbackLng: 'en',
     resources,
-    showSupportNotice: false,
   });
 };
