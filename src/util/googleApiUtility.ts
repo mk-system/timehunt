@@ -1,6 +1,6 @@
 import { calendar_v3, google } from 'googleapis';
 import { Credentials, OAuth2Client } from 'google-auth-library';
-import { getEnv, GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET } from '../lib/env';
+import { getEnv, GOOGLE_CLIENT_ID } from '../lib/env';
 import { homedir } from 'os';
 import { dirname, join } from 'path';
 import fs, { existsSync } from 'fs';
@@ -24,7 +24,7 @@ export const getCredentialsFromJSON = (JSONFilePath: string) => {
 export const initializeOAuth2Client = async () => {
   const oauth2Client = new OAuth2Client(
     GOOGLE_CLIENT_ID,
-    GOOGLE_CLIENT_SECRET,
+    undefined,
     'http://localhost:8080/callback'
   );
 
