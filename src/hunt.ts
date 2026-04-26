@@ -6,10 +6,12 @@ import {
 import {
   displayDateTimeRange,
   groupEventsByDate,
+  getLocale,
 } from './util/dateTimeUtility';
 import { exit } from 'process';
 
 export const huntCommandHandler = async (eventName: string) => {
+  const locale = getLocale();
   const oauth2Client = await initializeOAuth2Client();
 
   try {
@@ -18,7 +20,7 @@ export const huntCommandHandler = async (eventName: string) => {
       const groupedEvents = groupEventsByDate(events);
       if (groupedEvents.length > 0) {
         console.log('Upcoming events:');
-        await displayDateTimeRange(groupedEvents);
+        displayDateTimeRange(groupedEvents, locale);
         if (events.length > 10) {
           console.log('The number of events exceeds 10.');
         }

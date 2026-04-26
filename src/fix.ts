@@ -11,35 +11,33 @@ import {
   dividedDateTimeRange,
   groupEventsByDate,
   isInRange,
+  getLocale,
 } from './util/dateTimeUtility';
 import { exit } from 'process';
-
-const rl = readline.createInterface({
-  input: process.stdin,
-  output: process.stdout,
-});
-
-const yes = async (question: string): Promise<boolean> => {
-  return new Promise((resolve) => {
-    rl.question(question, (response) => {
-      const lowerCaseResponse = response.toLowerCase();
-      if (lowerCaseResponse === 'y' || lowerCaseResponse === 'yes') {
-        resolve(true);
-      } else if (lowerCaseResponse === 'n' || lowerCaseResponse === 'no') {
-        resolve(false);
-      } else {
-        resolve(yes(question));
-      }
-    });
-  });
-};
 
 export const fixCommandHandler = async (
   beforeEventName: string,
   afterEventName: string,
   dateTimeRange: string
 ) => {
+  const locale = getLocale();
   const oauth2Client = await initializeOAuth2Client();
+
+  const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
+  const yes = async (question: string): Promise<boolean> => {
+    return new Promise((resolve) => {
+      rl.question(question, (response) => {
+        const lowerCaseResponse = response.toLowerCase();
+        if (lowerCaseResponse === 'y' || lowerCaseResponse === 'yes') {
+          resolve(true);
+        } else if (lowerCaseResponse === 'n' || lowerCaseResponse === 'no') {
+          resolve(false);
+        } else {
+          resolve(yes(question));
+        }
+      });
+    });
+  };
 
   if (process.argv.length !== 6) {
     console.log('Arguments are wrong.');
@@ -55,7 +53,7 @@ export const fixCommandHandler = async (
           dividedDateTimeRange(dateTimeRange);
         if (isInRange(startDateTime, endDateTime, beforeEvents)) {
           console.log('May I remove these events?');
-          await displayDateTimeRange(groupedEvents);
+          displayDateTimeRange(groupedEvents, locale);
           if (await yes(`Then add this event.\n${dateTimeRange}\n(y/n) > `)) {
             await deleteEvents(oauth2Client, beforeEventName);
             await createEvent(

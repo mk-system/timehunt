@@ -6,9 +6,9 @@ import {
   setHours,
   setMinutes,
   setSeconds,
+  type Locale,
 } from 'date-fns';
-import ja from 'date-fns/locale/ja';
-import en from 'date-fns/locale/en-US';
+import * as Locales from 'date-fns/locale';
 import { calendar_v3 } from 'googleapis';
 import i18next from 'i18next';
 import { getLanguage } from '../lib/env';
@@ -16,6 +16,19 @@ import { getConfigValue } from './config';
 
 export type Element = [string, calendar_v3.Schema$Event[]];
 export type GroupEvents = Element[];
+
+export const getLocale = (): Locale => {
+  const langEnv = getLanguage();
+  const [lang, _encode] = langEnv.split(".");
+  const [langCode, countryCode] = lang.split("_");
+  let locale = Locales[langCode as keyof typeof Locales];
+  if (!locale && countryCode) {
+    const dateLocaleCode = `${langCode}${countryCode}`;
+    locale = Locales[dateLocaleCode as keyof typeof Locales];
+  }
+
+  return locale ?? Locales.enUS;
+};
 
 const isFullDay = (start: Date, end: Date) => {
   const startOfBusinessDay = setSeconds(setMinutes(setHours(start, 9), 0), 0);
@@ -25,20 +38,12 @@ const isFullDay = (start: Date, end: Date) => {
   );
 };
 
-export const convertToJapaneseDateFormat = (
-  date: Date,
-  formatStr: string,
-  locale: Locale = ja
-) => {
-  return format(date, formatStr, { locale });
-};
-
-const convertTo12HourFormat = (date: Date, locale: Locale = ja) => {
+const convertTo12HourFormat = (date: Date, locale: Locale) => {
   const timeFormat = getConfigValue('TIME_FORMAT');
   return format(date, timeFormat, { locale });
 };
 
-export const getTimeStr = (start: string, end: string, locale: Locale = ja) => {
+export const getTimeStr = (start: string, end: string, locale: Locale) => {
   const allDay = i18next.t('ALL_DAY');
   if (start === end) {
     return allDay;
@@ -59,18 +64,16 @@ export const getTimeStr = (start: string, end: string, locale: Locale = ja) => {
   }
 };
 
-export const displayDateTimeRange = async (groupedEvents: GroupEvents) => {
+export const displayDateTimeRange = (groupedEvents: GroupEvents, locale: Locale) => {
   for (const [date, eventsOnDate] of groupedEvents) {
     const eventStrs = eventsOnDate.map((event: calendar_v3.Schema$Event) => {
       const { start, end } = getTimeStrFromEvent(event);
-      return getTimeStr(start, end, getLanguage() == 'ja' ? ja : en);
+      return getTimeStr(start, end, locale);
     });
     const dateFormat = getConfigValue('DATE_FORMAT');
+    const str = format(parseISO(date), dateFormat, { locale });
     console.log(
-      `${convertToJapaneseDateFormat(
-        parseISO(date),
-        dateFormat
-      )} : ${eventStrs.join(' or ')}`
+      `${str} : ${eventStrs.join(' or ')}`
     );
   }
 };

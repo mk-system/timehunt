@@ -4,9 +4,10 @@ import { getEnv, GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET } from '../lib/env';
 import { homedir } from 'os';
 import { dirname, join } from 'path';
 import fs, { existsSync } from 'fs';
-import { authenticateWithPKCE } from './pkceAuth';
+import * as readline from 'readline';
+import { authenticateWithDeviceFlow } from './deviceAuth';
+import { saveConfig } from './config';
 
-export const { googleCalendarID } = getEnv();
 const SCOPE = ['https://www.googleapis.com/auth/calendar'];
 
 const xdgCache = process.env.XDG_CACHE_HOME || join(homedir(), '.cache');
@@ -21,27 +22,54 @@ export const getCredentialsFromJSON = (JSONFilePath: string) => {
   }
 };
 
+const ensureCalendarID = async (oauth2Client: OAuth2Client): Promise<void> => {
+  if (getEnv().googleCalendarID) return;
+
+  const calendars = await getCalendarList(oauth2Client);
+  if (calendars.length === 0) throw new Error('No calendars found.');
+
+  calendars.forEach((cal, i) => console.log(`  ${i + 1}. ${cal.summary} (${cal.id})`));
+
+  const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
+  const answer = await new Promise<string>(resolve =>
+    rl.question(`Select a calendar [1-${calendars.length}]: `, resolve)
+  );
+  rl.close();
+
+  const index = parseInt(answer.trim(), 10) - 1;
+  if (isNaN(index) || index < 0 || index >= calendars.length) {
+    throw new Error('Invalid calendar selection.');
+  }
+
+  const calendarId = calendars[index].id;
+  if (!calendarId) throw new Error('Selected calendar has no ID.');
+
+  saveConfig({ GOOGLE_CALENDAR_ID: calendarId });
+};
+
 export const initializeOAuth2Client = async () => {
   const oauth2Client = new OAuth2Client(
     GOOGLE_CLIENT_ID,
-    GOOGLE_CLIENT_SECRET,
-    'http://localhost:8080/callback'
+    GOOGLE_CLIENT_SECRET
   );
-  
+
   const credentials = fs.existsSync(JSON_FILE_PATH)
     ? getCredentialsFromJSON(JSON_FILE_PATH)
     : await getCredentials(oauth2Client);
-    
+
   if (credentials) {
     oauth2Client.setCredentials(credentials);
   }
+
+  await ensureCalendarID(oauth2Client);
+
   return oauth2Client;
 };
 
 export const getCredentials = async (oauth2Client: OAuth2Client) => {
   try {
-    const tokens = await authenticateWithPKCE(oauth2Client, SCOPE);
-    
+    const tokens = await authenticateWithDeviceFlow(GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, SCOPE);
+
     if (tokens) {
       const dirPath = dirname(JSON_FILE_PATH);
       if (!existsSync(dirPath)) {
@@ -58,39 +86,37 @@ export const getCredentials = async (oauth2Client: OAuth2Client) => {
   }
 };
 
-const getCalendar = async (oauth2Client: OAuth2Client) => {
+const getCalendar = (oauth2Client: OAuth2Client) => {
   return google.calendar({
     version: 'v3',
     auth: oauth2Client,
   });
 };
 
+export const getCalendarList = async (oauth2Client: OAuth2Client) => {
+  const calendar = getCalendar(oauth2Client);
+  const response = await calendar.calendarList.list();
+  return response.data.items ?? [];
+};
+
 export const getEvents = async (
   oauth2Client: OAuth2Client,
   eventName: string
 ) => {
-  const calendar = await getCalendar(oauth2Client);
+  const calendar = getCalendar(oauth2Client);
 
   const now = new Date();
   now.setHours(0, 0, 0, 0);
   const timeMin = now.toISOString();
 
-  try {
-    const response = await calendar.events.list({
-      calendarId: googleCalendarID,
-      q: eventName,
-      singleEvents: true,
-      orderBy: 'startTime',
-      timeMin: timeMin,
-    });
-    const events = response.data.items;
-    if (events) {
-      return response.data.items as calendar_v3.Schema$Event[];
-    }
-  } catch (error) {
-    console.log(error);
-  }
-  return undefined;
+  const response = await calendar.events.list({
+    calendarId: getEnv().googleCalendarID,
+    q: eventName,
+    singleEvents: true,
+    orderBy: 'startTime',
+    timeMin: timeMin,
+  });
+  return response.data.items;
 };
 
 const getEventIds = async (oauth2Client: OAuth2Client, eventName: string) => {
@@ -108,10 +134,10 @@ const getEventIds = async (oauth2Client: OAuth2Client, eventName: string) => {
 
 const deleteEvent = async (oauth2Client: OAuth2Client, eventId: string) => {
   try {
-    const calender = await getCalendar(oauth2Client);
+    const calender = getCalendar(oauth2Client);
     await calender.events.delete({
       auth: oauth2Client,
-      calendarId: googleCalendarID,
+      calendarId: getEnv().googleCalendarID,
       eventId: eventId,
     });
   } catch (error) {
@@ -152,9 +178,9 @@ export const createEvent = async (
   };
 
   try {
-    const calendar = await getCalendar(oauth2Client);
+    const calendar = getCalendar(oauth2Client);
     return await calendar.events.insert({
-      calendarId: googleCalendarID,
+      calendarId: getEnv().googleCalendarID,
       requestBody: event,
     });
   } catch (error) {
