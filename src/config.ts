@@ -1,5 +1,6 @@
 import { loadConfig, saveConfig, Config } from './util/config';
 import { initializeOAuth2Client, getCalendarList } from './util/googleApiUtility';
+import { OAuth2Client } from 'google-auth-library';
 import * as readline from 'readline';
 
 const rl = readline.createInterface({
@@ -21,9 +22,8 @@ const showCurrentConfig = (): void => {
   console.log(`GOOGLE_CALENDAR_ID=${config.GOOGLE_CALENDAR_ID}`);
 };
 
-const selectCalendar = async (): Promise<string | undefined> => {
+export const selectCalendar = async (oauth2Client: OAuth2Client): Promise<string | undefined> => {
   console.log('Fetching calendars...');
-  const oauth2Client = await initializeOAuth2Client();
   const calendars = await getCalendarList(oauth2Client);
 
   if (calendars.length === 0) {
@@ -47,6 +47,7 @@ const selectCalendar = async (): Promise<string | undefined> => {
 };
 
 const updateConfig = async (): Promise<void> => {
+  const oauth2Client = await initializeOAuth2Client();
   const config = loadConfig();
 
   console.log('\nModify configuration. Press Enter without input to keep current value.');
@@ -63,7 +64,7 @@ const updateConfig = async (): Promise<void> => {
 
   const changeCalendar = await question(`Change Google Calendar? [current: ${config.GOOGLE_CALENDAR_ID}] (y/N): `);
   if (changeCalendar.trim().toLowerCase() === 'y') {
-    const calendarId = await selectCalendar();
+    const calendarId = await selectCalendar(oauth2Client);
     if (calendarId) updates.GOOGLE_CALENDAR_ID = calendarId;
   }
 

@@ -11,10 +11,6 @@ export const getEnv = () => {
 
   const googleCalendarID = envCalendarId || configCalendarId;
 
-  if (!googleCalendarID) {
-    throw Error('Please set GOOGLE_CALENDAR_ID either as environment variable or in config file using: timehunt config set GOOGLE_CALENDAR_ID=your-email@gmail.com');
-  }
-
   return {
     googleCalendarID,
   };

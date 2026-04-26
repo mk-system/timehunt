@@ -27,10 +27,7 @@ export const getLocale = (): Locale => {
     locale = Locales[dateLocaleCode as keyof typeof Locales];
   }
 
-  if (!locale) {
-    throw new Error(`Locale ${langCode} or ${langCode}${countryCode} not found in date-fns. Available locales: ${Object.keys(Locales).join(', ')}`);
-  }
-  return locale;
+  return locale ?? Locales.enUS;
 };
 
 const isFullDay = (start: Date, end: Date) => {

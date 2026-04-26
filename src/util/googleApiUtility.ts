@@ -4,9 +4,10 @@ import { getEnv, GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET } from '../lib/env';
 import { homedir } from 'os';
 import { dirname, join } from 'path';
 import fs, { existsSync } from 'fs';
+import * as readline from 'readline';
 import { authenticateWithDeviceFlow } from './deviceAuth';
+import { saveConfig } from './config';
 
-export const { googleCalendarID } = getEnv();
 const SCOPE = ['https://www.googleapis.com/auth/calendar'];
 
 const xdgCache = process.env.XDG_CACHE_HOME || join(homedir(), '.cache');
@@ -19,6 +20,31 @@ export const getCredentialsFromJSON = (JSONFilePath: string) => {
   } catch (error) {
     return undefined;
   }
+};
+
+const ensureCalendarID = async (oauth2Client: OAuth2Client): Promise<void> => {
+  if (getEnv().googleCalendarID) return;
+
+  const calendars = await getCalendarList(oauth2Client);
+  if (calendars.length === 0) throw new Error('No calendars found.');
+
+  calendars.forEach((cal, i) => console.log(`  ${i + 1}. ${cal.summary} (${cal.id})`));
+
+  const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
+  const answer = await new Promise<string>(resolve =>
+    rl.question(`Select a calendar [1-${calendars.length}]: `, resolve)
+  );
+  rl.close();
+
+  const index = parseInt(answer.trim(), 10) - 1;
+  if (isNaN(index) || index < 0 || index >= calendars.length) {
+    throw new Error('Invalid calendar selection.');
+  }
+
+  const calendarId = calendars[index].id;
+  if (!calendarId) throw new Error('Selected calendar has no ID.');
+
+  saveConfig({ GOOGLE_CALENDAR_ID: calendarId });
 };
 
 export const initializeOAuth2Client = async () => {
@@ -34,6 +60,9 @@ export const initializeOAuth2Client = async () => {
   if (credentials) {
     oauth2Client.setCredentials(credentials);
   }
+
+  await ensureCalendarID(oauth2Client);
+
   return oauth2Client;
 };
 
@@ -81,7 +110,7 @@ export const getEvents = async (
   const timeMin = now.toISOString();
 
   const response = await calendar.events.list({
-    calendarId: googleCalendarID,
+    calendarId: getEnv().googleCalendarID,
     q: eventName,
     singleEvents: true,
     orderBy: 'startTime',
@@ -108,7 +137,7 @@ const deleteEvent = async (oauth2Client: OAuth2Client, eventId: string) => {
     const calender = getCalendar(oauth2Client);
     await calender.events.delete({
       auth: oauth2Client,
-      calendarId: googleCalendarID,
+      calendarId: getEnv().googleCalendarID,
       eventId: eventId,
     });
   } catch (error) {
@@ -151,7 +180,7 @@ export const createEvent = async (
   try {
     const calendar = getCalendar(oauth2Client);
     return await calendar.events.insert({
-      calendarId: googleCalendarID,
+      calendarId: getEnv().googleCalendarID,
       requestBody: event,
     });
   } catch (error) {
