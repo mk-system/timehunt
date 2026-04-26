@@ -21,7 +21,6 @@
     "google-auth-library": "^10.6.2",
     "googleapis": "^160.0.0",
     "i18next": "^25.10.10",
-    "i18next-fs-backend": "^2.6.5",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.3"
   },
