@@ -15,26 +15,6 @@ import {
 } from './util/dateTimeUtility';
 import { exit } from 'process';
 
-const rl = readline.createInterface({
-  input: process.stdin,
-  output: process.stdout,
-});
-
-const yes = async (question: string): Promise<boolean> => {
-  return new Promise((resolve) => {
-    rl.question(question, (response) => {
-      const lowerCaseResponse = response.toLowerCase();
-      if (lowerCaseResponse === 'y' || lowerCaseResponse === 'yes') {
-        resolve(true);
-      } else if (lowerCaseResponse === 'n' || lowerCaseResponse === 'no') {
-        resolve(false);
-      } else {
-        resolve(yes(question));
-      }
-    });
-  });
-};
-
 export const fixCommandHandler = async (
   beforeEventName: string,
   afterEventName: string,
@@ -42,6 +22,22 @@ export const fixCommandHandler = async (
 ) => {
   const locale = getLocale();
   const oauth2Client = await initializeOAuth2Client();
+
+  const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
+  const yes = async (question: string): Promise<boolean> => {
+    return new Promise((resolve) => {
+      rl.question(question, (response) => {
+        const lowerCaseResponse = response.toLowerCase();
+        if (lowerCaseResponse === 'y' || lowerCaseResponse === 'yes') {
+          resolve(true);
+        } else if (lowerCaseResponse === 'n' || lowerCaseResponse === 'no') {
+          resolve(false);
+        } else {
+          resolve(yes(question));
+        }
+      });
+    });
+  };
 
   if (process.argv.length !== 6) {
     console.log('Arguments are wrong.');
