@@ -1,4 +1,5 @@
 import { loadConfig, saveConfig, Config } from './util/config';
+import { initializeOAuth2Client, getCalendarList } from './util/googleApiUtility';
 import * as readline from 'readline';
 
 const rl = readline.createInterface({
@@ -20,31 +21,52 @@ const showCurrentConfig = (): void => {
   console.log(`GOOGLE_CALENDAR_ID=${config.GOOGLE_CALENDAR_ID}`);
 };
 
+const selectCalendar = async (): Promise<string | undefined> => {
+  console.log('Fetching calendars...');
+  const oauth2Client = await initializeOAuth2Client();
+  const calendars = await getCalendarList(oauth2Client);
+
+  if (calendars.length === 0) {
+    console.log('No calendars found.');
+    return undefined;
+  }
+
+  calendars.forEach((cal, i) => {
+    console.log(`  ${i + 1}. ${cal.summary} (${cal.id})`);
+  });
+
+  const answer = await question(`Select a calendar [1-${calendars.length}]: `);
+  const index = parseInt(answer.trim(), 10) - 1;
+
+  if (isNaN(index) || index < 0 || index >= calendars.length) {
+    console.log('Invalid selection.');
+    return undefined;
+  }
+
+  return calendars[index].id ?? undefined;
+};
+
 const updateConfig = async (): Promise<void> => {
   const config = loadConfig();
-  
+
   console.log('\nModify configuration. Press Enter without input to keep current value.');
-  
+
   const dateFormat = await question(`Date format [current: ${config.DATE_FORMAT}]: `);
   const timeFormat = await question(`Time format [current: ${config.TIME_FORMAT}]: `);
   const timeSeparator = await question(`Time separator [current: ${config.TIME_SEPERATOR}]: `);
-  const googleCalendarId = await question(`Google Calendar ID [current: ${config.GOOGLE_CALENDAR_ID}]: `);
-  
+
   const updates: Partial<Config> = {};
-  
-  if (dateFormat.trim()) {
-    updates.DATE_FORMAT = dateFormat.trim();
+
+  if (dateFormat.trim()) updates.DATE_FORMAT = dateFormat.trim();
+  if (timeFormat.trim()) updates.TIME_FORMAT = timeFormat.trim();
+  if (timeSeparator.trim()) updates.TIME_SEPERATOR = timeSeparator.trim();
+
+  const changeCalendar = await question(`Change Google Calendar? [current: ${config.GOOGLE_CALENDAR_ID}] (y/N): `);
+  if (changeCalendar.trim().toLowerCase() === 'y') {
+    const calendarId = await selectCalendar();
+    if (calendarId) updates.GOOGLE_CALENDAR_ID = calendarId;
   }
-  if (timeFormat.trim()) {
-    updates.TIME_FORMAT = timeFormat.trim();
-  }
-  if (timeSeparator.trim()) {
-    updates.TIME_SEPERATOR = timeSeparator.trim();
-  }
-  if (googleCalendarId.trim()) {
-    updates.GOOGLE_CALENDAR_ID = googleCalendarId.trim();
-  }
-  
+
   if (Object.keys(updates).length > 0) {
     saveConfig(updates);
     showCurrentConfig();

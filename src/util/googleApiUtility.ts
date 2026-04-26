@@ -64,6 +64,12 @@ const getCalendar = (oauth2Client: OAuth2Client) => {
   });
 };
 
+export const getCalendarList = async (oauth2Client: OAuth2Client) => {
+  const calendar = getCalendar(oauth2Client);
+  const response = await calendar.calendarList.list();
+  return response.data.items ?? [];
+};
+
 export const getEvents = async (
   oauth2Client: OAuth2Client,
   eventName: string
