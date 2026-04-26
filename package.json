@@ -21,10 +21,10 @@
     "google-auth-library": "^10.6.2",
     "googleapis": "^160.0.0",
     "i18next": "^25.10.10",
-    "ts-node": "^10.9.2",
     "typescript": "^5.9.3"
   },
   "devDependencies": {
-    "@types/node": "^24.12.2"
+    "@types/node": "^24.12.2",
+    "ts-node": "^10.9.2"
   }
 }
